@@ -19,8 +19,13 @@ def main(argv=None):
     gen.add_argument("--config")
     csv = sub.add_parser("csv", help="выгрузить таблицы версии в CSV для просмотра")
     csv.add_argument("--dir", default="synthetic/v1")
+    sub.add_parser("open", help="скачать открытые данные для серии S5 (UCI Student Performance) в open/uci")
     args = parser.parse_args(argv)
 
+    if args.command == "open":
+        from .open_data import download_uci
+        download_uci(Path("open/uci"))
+        return
     if args.command == "csv":
         write_csv(Path(args.dir))
         return

@@ -1,4 +1,4 @@
-.PHONY: build generate csv test clean
+.PHONY: build generate csv open test clean
 
 IMAGE := igpalab-data
 VERSION ?= v1
@@ -20,6 +20,10 @@ generate: build
 # выгрузить таблицы версии в CSV для просмотра (synthetic/$(VERSION)/csv, в git не идут)
 csv: build
 	$(RUN) python -m generator csv --dir synthetic/$(VERSION)
+
+# скачать открытые данные для серии S5 (UCI Student Performance) в open/uci, в git не идут
+open: build
+	$(RUN) python -m generator open
 
 # pytest: инварианты истории и АСУ, формат xlsx, сверка срезов с калькулятором, воспроизводимость
 test: build
