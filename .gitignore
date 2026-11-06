@@ -1,0 +1,29 @@
+# секреты (ключ OpenAI и т.п.) – только в переменных окружения
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# frontend
+node_modules/
+dist/
+*.local
+
+# временные файлы Excel
+~$*.xlsx
+
+# логи
+*.log
+
+# IDE и ОС
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
