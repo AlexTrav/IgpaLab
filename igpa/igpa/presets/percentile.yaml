@@ -1,0 +1,74 @@
+# Серия S7: Положение с исправленной нормировкой – 100% iROS или SSCI у студента на уровне лучших 5% вуза,
+# а не у недостижимого максимума. Потолки – 95-й процентиль истинных iROS и SSCI по Положению на синтетике v1
+# (0,0827 и 0,2075, округлены); на реальных данных пересчитать по выгрузке АСУ.
+version: "2026.11-v1-percentile"
+ceiling_iros: 0.08
+ceiling_ssci: 0.20
+
+# IGPA = gpa·GPA + iros·(iROS·scale) + ssci·(SSCI·scale), п. 5.4
+weights: {gpa: 0.5, iros: 0.35, ssci: 0.15}
+scale: 4                # допущение: iROS и SSCI из [0; 1] переводятся в шкалу GPA, как в EduScore
+
+# category – по каждому показателю активности (п. 3.6): доля от максимума категории, веса блока в сумме 1;
+# eduscore – как движок EduScore: лучшие top_n эффективных баллов по всему направлению / максимум
+method: category
+top_n: 5                # п. 3.6: пять наиболее значимых достижений
+category_cap: 100       # максимум баллов категории: 5 × 20 или 100 за постоянный проект
+ssci_blocks: mean       # допущение: SSCI = среднее разовой и постоянной частей; sum_clip – сумма, обрезанная до 1
+foreign_status: map     # статус чужой карты: map – сопоставить по status_map; reject – не учитывать
+only_approved: true     # учитывать только согласованные записи
+
+points:                 # баллы за статус, Приложения 1 и 2
+  IROS_OVPO: 10
+  IROS_REP_CITY: 14
+  IROS_INT_RK: 18
+  IROS_INT_ABROAD: 20
+  SSCI_UNIVERSITY: 10
+  SSCI_CITY_REGION: 15
+  SSCI_REPUBLIC: 15
+  SSCI_INTERNATIONAL: 20
+  SSCI_PERMANENT: 100
+
+category_weights:       # веса по Положению; в методе category нормируются внутри блока до суммы 1
+  IROS_EVENT: 0.2
+  IROS_TALK: 0.2              # допущение: как участие в мероприятиях
+  IROS_PUBLICATION: 0.3
+  IROS_PROJECT: 0.3
+  IROS_INTERNSHIP: 0.3        # допущение: как участие в проектах
+  IROS_PRIZE: 0.2
+  SSCI_VOLUNTEER: 0.2
+  SSCI_INTELLECTUAL: 0.2
+  SSCI_INTELLECTUAL_PRIZE: 0.2
+  SSCI_SPORT: 0.2
+  SSCI_SOCIAL_PROJECT: 0.2
+  SSCI_IMAGE_PROJECT: 0.2
+  SSCI_STUDENT_ORG: 0.4
+  SSCI_LEADERSHIP: 0.4        # допущение: как членство в организациях
+  SSCI_UNIVERSITY_IMAGE: 0.4
+  SSCI_UNIT_VOLUNTEER: 0.2    # допущение: как имиджевые проекты
+
+max_count:              # только для метода eduscore: сколько раз учитывается пара «тип, статус»
+  research: 5
+  one_time: 5
+  permanent: 1
+
+status_map:             # блок типа -> {статус чужой карты: статус своей карты}; чего нет – запись не учитывается
+  research:
+    SSCI_UNIVERSITY: IROS_OVPO
+    SSCI_CITY_REGION: IROS_REP_CITY
+    SSCI_REPUBLIC: IROS_REP_CITY
+    SSCI_INTERNATIONAL: IROS_INT_RK     # осторожно: в РК или за рубежом не известно
+  one_time:
+    IROS_OVPO: SSCI_UNIVERSITY
+    IROS_REP_CITY: SSCI_REPUBLIC
+    IROS_INT_RK: SSCI_INTERNATIONAL
+    IROS_INT_ABROAD: SSCI_INTERNATIONAL
+  permanent:                            # тип сам говорит, что проект постоянный
+    IROS_OVPO: SSCI_PERMANENT
+    IROS_REP_CITY: SSCI_PERMANENT
+    IROS_INT_RK: SSCI_PERMANENT
+    IROS_INT_ABROAD: SSCI_PERMANENT
+    SSCI_UNIVERSITY: SSCI_PERMANENT
+    SSCI_CITY_REGION: SSCI_PERMANENT
+    SSCI_REPUBLIC: SSCI_PERMANENT
+    SSCI_INTERNATIONAL: SSCI_PERMANENT

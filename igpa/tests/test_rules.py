@@ -75,3 +75,10 @@ def test_zero_weights_in_whole_block_rejected(rules):
 def test_rules_are_immutable(rules):
     with pytest.raises(TypeError):
         rules.points["IROS_OVPO"] = 100
+
+
+def test_percentile_preset():
+    rules = load_rules("percentile")
+    base = load_rules()
+    assert (rules.ceiling_iros, rules.ceiling_ssci) == (0.08, 0.2)
+    assert rules.category_weights == base.category_weights and rules.points == base.points

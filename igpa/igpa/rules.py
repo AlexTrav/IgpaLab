@@ -11,7 +11,7 @@ import yaml
 
 from .catalog import CATEGORY_BY_CODE, STATUS_BY_CODE, Block, categories
 
-PRESETS = ("default", "eduscore")
+PRESETS = ("default", "eduscore", "percentile")
 METHODS = ("category", "eduscore")
 SSCI_BLOCKS = ("mean", "sum_clip")
 FOREIGN_STATUS = ("map", "reject")
@@ -34,6 +34,9 @@ class Rules:
     category_weights: Mapping[str, float]
     max_count: Mapping[Block, int]
     status_map: Mapping[Block, Mapping[str, str]]
+    # потолок нормировки (серия S7): iROS = min(1, iROS / ceiling); 1 – как в Положении, без изменения
+    ceiling_iros: float = 1.0
+    ceiling_ssci: float = 1.0
 
     def __post_init__(self):
         # словари замораживаются, чтобы правила нельзя было поменять мимо with_changes и проверки
@@ -53,6 +56,7 @@ class Rules:
         weights = (self.weight_gpa, self.weight_iros, self.weight_ssci)
         _check(min(weights) >= 0 and math.isclose(sum(weights), 1.0), f"веса GPA, iROS, SSCI {weights}: сумма должна быть 1")
         _check(self.scale > 0 and self.top_n >= 1 and self.category_cap > 0, "scale, top_n, category_cap должны быть > 0")
+        _check(0 < self.ceiling_iros <= 1 and 0 < self.ceiling_ssci <= 1, "ceiling_iros и ceiling_ssci должны быть в (0; 1]")
         _check(set(self.points) == set(STATUS_BY_CODE), "points: нужны баллы ровно для 9 статусов АСУ")
         _check(min(self.points.values()) > 0, "points: баллы должны быть > 0")
         _check(set(self.category_weights) == set(CATEGORY_BY_CODE), "category_weights: нужны веса ровно для 16 типов АСУ")

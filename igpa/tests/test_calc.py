@@ -165,3 +165,19 @@ def test_adding_record_never_decreases_igpa(preset):
         for category in CATEGORIES:
             for status in STATUSES:
                 assert calculate(records + [Record(category.code, status.code)], gpa, rules).igpa >= base - 1e-12
+
+
+def test_ceiling_rescales_direction():
+    rules = RULES.with_changes(ceiling_iros=0.1)
+    records = full("IROS_PUBLICATION", "IROS_REP_CITY", 2)          # iROS = 0,2 · 28/100 = 0,056
+    base = calculate(records, 3.0)
+    capped = calculate(records, 3.0, rules)
+    assert capped.iros == pytest.approx(base.iros / 0.1)
+    assert sum(capped.categories[c.code].contribution for c in categories(profile=Profile.IROS)) == pytest.approx(capped.iros)
+    assert calculate(full("IROS_PUBLICATION", "IROS_INT_ABROAD") + full("IROS_PROJECT", "IROS_INT_ABROAD"), 3.0, rules).iros == 1
+    assert capped.ssci == base.ssci
+
+
+def test_ceiling_validated():
+    with pytest.raises(ValueError):
+        RULES.with_changes(ceiling_ssci=0)

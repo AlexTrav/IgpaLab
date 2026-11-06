@@ -9,7 +9,8 @@ make -C model baselines   # B0 и B1: results/v1/baselines и контроль r
 make -C model models      # Ridge, RF, CatBoost, стекинг, среднее, контроль прогноза уровня: results/v1/models
 make -C model series      # серии S0–S3 на CatBoost (вклад групп признаков): results/v1/series
 make -C model hybrid      # своя модель IGPA-Hybrid и серия S8 (смена правил): results/v1/hybrid
-make -C model test        # 26 тестов: нет утечки из будущего, порядок проверок, метрики, устройство моделей
+make -C model recsys      # SHAP, восстановление эффектов, рекомендации, серия S7: results/v1/recsys
+make -C model test        # 30 тестов: нет утечки из будущего, порядок проверок, метрики, устройство моделей
 ```
 
 ## Устройство
@@ -20,6 +21,8 @@ make -C model test        # 26 тестов: нет утечки из будущ
 | `forecast/protocol.py` | Расширяющееся окно по времени, метрики, бутстреп-ДИ по студентам, Уилкоксон, Холм |
 | `forecast/baselines.py` | B0 «IGPA не изменится», B1 «только GPA» |
 | `forecast/hybrid.py` | IGPA-Hybrid: компоненты (GPA, число записей по 16 типам, уровни), розыгрыши и точный пересчёт калькулятором igpa |
+| `forecast/recommend.py` | Рекомендации «что если»: точный прирост по калькулятору, реалистичность по похожим студентам, проверка следованием |
+| `forecast/study.py` | Шаг 7: SHAP, восстановление эффектов, серия S7, рисунки 7–9, отчёт |
 | `forecast/models.py` | Ridge и логистическая регрессия, Random Forest, CatBoost; стекинг (NNLS-веса и логистическая мета-модель) и простое среднее; кэш обученных моделей |
 | `forecast/evaluate.py` | Прогон моделей: 2 правила × 2 слоя × 3 проверочных года; итог по последнему году |
 | `forecast/report.py` | Отчёт прогона в Markdown |

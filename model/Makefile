@@ -1,4 +1,4 @@
-.PHONY: build baselines models series hybrid test clean
+.PHONY: build baselines models series hybrid recsys test clean
 
 IMAGE := igpalab-model
 VERSION ?= v1
@@ -38,3 +38,7 @@ series: build
 # своя модель IGPA-Hybrid против B0, CatBoost и стекинга (их прогнозы из прогона models) и серия S8
 hybrid: build
 	$(RUN) python -m forecast --version $(VERSION) --name hybrid
+
+# шаг 7: SHAP, восстановление эффектов, серия S7, проверка рекомендаций: results/v1/recsys
+recsys: build
+	$(RUN) python -m forecast --version $(VERSION) --name recsys

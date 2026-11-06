@@ -86,6 +86,8 @@ def calculate(records: Iterable[Record], gpa: float, rules: Rules | None = None)
     else:
         per_category = _by_direction(scored, rules, flags)
 
+    per_category = _apply_ceiling(per_category, Profile.IROS, rules.ceiling_iros)
+    per_category = _apply_ceiling(per_category, Profile.SSCI, rules.ceiling_ssci)
     iros = sum(per_category[c.code].contribution for c in categories(profile=Profile.IROS))
     ssci = sum(per_category[c.code].contribution for c in categories(profile=Profile.SSCI))
     parts = igpa_parts(gpa, iros, ssci, rules)
@@ -93,6 +95,22 @@ def calculate(records: Iterable[Record], gpa: float, rules: Rules | None = None)
                       gpa_part=parts[0], iros_part=parts[1], ssci_part=parts[2],
                       categories=per_category, flags=tuple(sorted(flags, key=lambda f: f.index)),
                       rules_version=rules.version)
+
+
+def _apply_ceiling(per_category: dict, profile: Profile, ceiling: float) -> dict:
+    """Потолок нормировки: значение направления делится на ceiling и обрезается до 1; вклады типов – в той же пропорции."""
+    if ceiling >= 1:
+        return per_category
+    codes = [c.code for c in categories(profile=profile)]
+    total = sum(per_category[c].contribution for c in codes)
+    if total == 0:
+        return per_category
+    factor = min(1.0, total / ceiling) / total
+    out = dict(per_category)
+    for code in codes:
+        s = out[code]
+        out[code] = CategoryScore(s.code, s.points, s.counted, s.contribution * factor)
+    return out
 
 
 def _resolve(records: list[Record], rules: Rules, flags: list[Flag]) -> list[_Scored]:
