@@ -54,6 +54,7 @@
 | Сайт конференции | https://sc.astanait.edu.kz/ (правила: `/home/paper-submission-guidelines/`, `/home/call-for-papers/`) |
 | Подача статьи (Microsoft CMT) | https://cmt3.research.microsoft.com/IEEEDG2027 |
 | Тема диссертации | `C:\Users\Алексей\Desktop\ТУРАН\Магистратура\Магистерская диссертация\Тема.txt` |
+| Данные о «Туран»: структура, академическая политика, шкала оценок, календарь | Корпус TuranAssist: `C:\Users\Алексей\Desktop\ТУРАН\Магистратура\1-й курс\1-й семестр\Технологии разработки программного обеспечения для систем реального времени\РК-1\Задание - 1\project\TuranAssist\data\corpus\` (`site/ru/faculty-*.md`, `site/ru/master.md`, `docs/ru/academic-policy-2025-2026.md`) |
 
 ## Сроки
 

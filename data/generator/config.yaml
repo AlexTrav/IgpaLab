@@ -1,0 +1,148 @@
+# Генератор синтетики IgpaLab: все допущения и заложенные эффекты в одном месте (обоснование: docs/data.md).
+# Раздел effects – «истина», которую модели и SHAP должны восстановить; копия уходит в ground_truth.json.
+version: v1
+seed: 20261106
+students: 6000              # масштаб «Туран»: по открытым источникам около 5–6 тысяч студентов
+first_intake: 2021
+last_intake: 2026
+now: 2026-11-02             # «сегодня» стенда: дата шаблонов выгрузки АСУ
+asu_launch: 2021-09-01      # основной слой: раздел IGPA в АСУ как будто работает с начала истории
+real_launch: 2026-09-01     # сценарий «как в жизни»: раздел появился осенью 2026, прошлое вносят задним числом
+rules: default              # набор правил калькулятора igpa для срезов: default (Положение) или eduscore
+rules_alt: [eduscore]       # те же данные, годовые срезы по другим правилам: snapshots_year_<имя>, для сравнения
+
+levels:                     # доли и длительность обучения (магистратура: научно-педагогическая 2 года, профильная 1 год)
+  bachelor: {share: 0.82, years: 4}
+  master_research: {share: 0.11, years: 2}
+  master_profile: {share: 0.07, years: 1}
+
+language:                   # магистратура: казахский и русский (сайт), бакалавриат ещё и английский
+  bachelor: {Русский: 0.55, Казахский: 0.40, Английский: 0.05}
+  master: {Русский: 0.60, Казахский: 0.40}
+form:
+  bachelor: {Очная: 0.92, Дистанционная: 0.08}
+  master: {Очная: 1.0}
+
+latent:                     # a – учёба, r – наука, s – общественная и спортивная активность, m – мотивация, rep – готовность вносить в АСУ
+  names: [a, r, s, m, rep]
+  corr:
+    - [1.00, 0.45, 0.05, 0.35, 0.10]
+    - [0.45, 1.00, 0.20, 0.30, 0.15]
+    - [0.05, 0.20, 1.00, 0.30, 0.15]
+    - [0.35, 0.30, 0.30, 1.00, 0.30]
+    - [0.10, 0.15, 0.15, 0.30, 1.00]
+  level_shift:              # магистранты в среднем сильнее в учёбе и науке
+    master_research: {a: 0.3, r: 0.7}
+    master_profile: {a: 0.2, r: 0.2}
+  athlete: {base: 0.10, s: 0.05}            # доля спортсменов: base + s·s
+  motivation: {keep: 0.8, noise: 0.6, shock_p: 0.05, shock: -1.5}   # m меняется раз в год, иногда резко падает
+
+grades:                     # балл по дисциплине 0–100, шкала и перевод – академическая политика «Туран» 2025–2026
+  base: {bachelor: 80, master: 83}
+  ability: 8.5              # баллов за одно стандартное отклонение a
+  motivation: 2.0
+  growth: 1.0               # прирост за каждый следующий курс
+  semester_noise: 2.5
+  course_noise: 6.0
+  difficulty: 3.0
+  courses:                  # 30 кредитов за семестр
+    5: [6, 6, 6, 6, 6]
+    6: [5, 5, 5, 5, 5, 5]
+    7: [5, 5, 4, 4, 4, 4, 4]
+  courses_p: {5: 0.3, 6: 0.5, 7: 0.2}
+  pass_score: 50
+  scale:                    # [нижняя граница балла, буква, цифровой эквивалент]
+    - [95, "A", 4.0]
+    - [90, "A-", 3.67]
+    - [85, "B+", 3.33]
+    - [80, "B", 3.0]
+    - [75, "B-", 2.67]
+    - [70, "C+", 2.33]
+    - [65, "C", 2.0]
+    - [60, "C-", 1.67]
+    - [55, "D+", 1.33]
+    - [50, "D", 1.0]
+    - [25, "FX", 0.5]
+    - [0, "F", 0.0]
+  transfer:                 # перевод на следующий курс: [накопленные кредиты, переводной GPA]
+    bachelor: {1: [45, 1.60], 2: [95, 1.80], 3: [170, 2.00]}
+    master_research: {1: [50, 2.00]}
+  repeat_p: 0.6             # не переведённый остаётся на повторный курс, иначе отчисление
+  dropout: {base: -4.0, gpa: -1.2}          # уход по своей воле: logit = base + gpa·(GPA года − 2,5)
+
+effects:                    # влияние активности прошлого семестра на баллы по дисциплинам
+  research_to_gpa: 0.8      # + баллов за каждое научное достижение (не больше cap) у студентов с a > min_a
+  research_to_gpa_cap: 3
+  research_to_gpa_min_a: 0.5
+  social_load_to_gpa: -0.6  # баллов за каждое разовое SSCI сверх free
+  social_load_free: 3
+
+activity:
+  research:                 # интенсивность за семестр у первокурсника со средними свойствами
+    IROS_EVENT: 0.12
+    IROS_TALK: 0.035
+    IROS_PUBLICATION: 0.02
+    IROS_PROJECT: 0.012
+  research_coef: {trait: 0.8, motivation: 0.25, year: 0.10, experience: 0.15, master: 0.6}
+  publication_per_talk: 0.4 # доклад часто превращается в тезисы
+  internship:               # стажировка за семестр: у научно-педагогических магистрантов на 2-м году
+    master_research: 0.35
+    master_profile: 0.08
+  prize: {base: -3.4, r: 0.7, a: 0.5, m: 0.3}          # шанс призового места на каждое участие или доклад
+  social:
+    SSCI_VOLUNTEER: 0.12
+    SSCI_INTELLECTUAL: 0.10
+    SSCI_SOCIAL_PROJECT: 0.02
+  social_coef: {trait: 0.8, motivation: 0.25, peak_year: 2, peak: -0.10, experience: 0.15, master: -0.4}
+  sport: {athlete: 0.3, other: 0.02}
+  intellectual_prize: {base: -2.6, a: 0.5, s: 0.5}
+  permanent:                # logit участия в постоянном проекте за учебный год; keep – если был в прошлом году
+    SSCI_STUDENT_ORG: {base: -2.2, s: 0.9, m: 0.3, keep: 1.5}
+    SSCI_LEADERSHIP: {base: -4.2, s: 1.0, a: 0.4, keep: 1.0, after_org: 1.2}
+    SSCI_IMAGE_PROJECT: {base: -2.9, s: 0.8, keep: 0.8}
+    SSCI_UNIVERSITY_IMAGE: {base: -3.4, s: 0.6, r: 0.3, keep: 1.0}
+    SSCI_UNIT_VOLUNTEER: {base: -3.0, s: 0.8, keep: 1.0}
+  permanent_master: -0.5
+  level:                    # уровень мероприятия: порядковая логит-модель
+    coef: {trait: 0.7, experience: 0.10, year: 0.15, master: 0.4}
+    cut_research: [1.4, 2.9, 4.1]     # ОВПО | Республиканский, Городской | Международный в РК | за рубежом
+    cut_one_time: [1.1, 2.2, 3.4]     # Университетские | Городской, региональный | Республиканский | Международные
+    shift: {IROS_PRIZE: -0.2, IROS_PUBLICATION: 0.3, IROS_INTERNSHIP: 1.5, SSCI_SPORT: 0.2}
+  windows:                  # окна активности учебного года: месяц-день начала и конца
+    fall: ["09-01", "01-17"]
+    spring: ["01-18", "06-15"]
+    permanent: ["09-15", "11-30"]
+  sessions: {fall: "12-26", spring: "05-15"}   # конец сессии: после неё известны оценки семестра
+
+asu:                        # что и когда попадает в АСУ
+  enter: {base: 0.5, rep: 1.0, level: 0.25, senior_master: 0.8}  # logit внесения; старших магистрантов просили первыми
+  real_shift: -1.5          # сценарий «как в жизни»: раздел только открылся, вносят мало
+  retro: {base: -1.0, years_ago: -0.5}     # внесение задним числом прошлых лет (сценарий real_launch)
+  delay_days: 21            # в среднем от события до внесения (политика: заполнять ежемесячно)
+  retro_days: 30
+  draft_p: 0.03             # так и осталась черновиком
+  file_p: 0.97              # приложен подтверждающий файл
+  errors: {foreign_status: 0.03, foreign_status_permanent: 0.08, wrong_category: 0.01, duplicate: 0.015}
+  wrong_category:           # путают похожие типы
+    IROS_TALK: IROS_EVENT
+    IROS_EVENT: IROS_TALK
+    SSCI_UNIT_VOLUNTEER: SSCI_VOLUNTEER
+    SSCI_VOLUNTEER: SSCI_UNIT_VOLUNTEER
+    SSCI_INTELLECTUAL_PRIZE: SSCI_INTELLECTUAL
+    SSCI_INTELLECTUAL: SSCI_INTELLECTUAL_PRIZE
+  foreign_status:           # статус «чужой» карты из общего списка
+    IROS_OVPO: SSCI_UNIVERSITY
+    IROS_REP_CITY: SSCI_REPUBLIC
+    IROS_INT_RK: SSCI_INTERNATIONAL
+    IROS_INT_ABROAD: SSCI_INTERNATIONAL
+    SSCI_UNIVERSITY: IROS_OVPO
+    SSCI_CITY_REGION: IROS_REP_CITY
+    SSCI_REPUBLIC: IROS_REP_CITY
+    SSCI_INTERNATIONAL: IROS_INT_ABROAD
+    SSCI_PERMANENT: SSCI_UNIVERSITY
+  stages:                   # этапы согласования: Положение, п. 6.3 и 6.4
+    IROS: [Ответственный по науке ВШ, Директор ВШ, Декан факультета, Директор отдела науки, Проректор СРНИиИ]
+    SSCI: [Эдвайзер-куратор ВШ, Заместитель декана, Комитет по делам молодежи, Проректор СВД]
+  stage_days: {first: 6, other: 4}
+  reject: {first: 0.03, other: 0.01, error: 0.4, duplicate: 0.6}
+  snapshots: {year_end: "06-30", fall_end: "01-31"}
