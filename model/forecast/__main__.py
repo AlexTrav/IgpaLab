@@ -46,6 +46,7 @@ def main(argv=None):
     d = load(Path(args.data) / args.version)
     if args.name.startswith("check-"):
         from . import checks
+        d["_dir"] = Path(args.data) / args.version   # папка версии: проверкам нужны и таблицы вне features.TABLES
         getattr(checks, args.name[6:].replace("-", "_"))(d, Path("results") / args.version / "checks")
         return
     if args.name == "export":

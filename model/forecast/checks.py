@@ -184,7 +184,7 @@ def semester(d: dict, out: Path):
     """
     from igpa import CATEGORIES
     from .models import RidgeModel
-    sem = pd.read_parquet(Path("/repo/data/synthetic") / "v1" / "snapshots_semester.parquet")
+    sem = pd.read_parquet(d["_dir"] / "snapshots_semester.parquet")
     sem = sem[~sem.partial]
     st = d["students"][["student_id", "level", "faculty", "form", "language"]]
     rows = []
