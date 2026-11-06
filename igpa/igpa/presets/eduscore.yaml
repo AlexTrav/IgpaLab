@@ -1,0 +1,49 @@
+# Правила движка EduScore (IGPA-2025-v1, eduscore-gpa-service/internal/domain/scoring) на справочниках АСУ.
+# Нужны для сверки с дипломным проектом. Отличие: у EduScore в SSCI есть «международный в РК» на 18 баллов,
+# в справочнике АСУ такого статуса нет («Международные» = 20).
+version: "eduscore-IGPA-2025-v1"
+
+weights: {gpa: 0.5, iros: 0.35, ssci: 0.15}
+scale: 4
+method: eduscore
+top_n: 5
+category_cap: 100
+ssci_blocks: mean
+foreign_status: reject   # EduScore не учитывает пару «категория, уровень» без правила
+only_approved: true
+
+points:
+  IROS_OVPO: 10
+  IROS_REP_CITY: 14
+  IROS_INT_RK: 18
+  IROS_INT_ABROAD: 20
+  SSCI_UNIVERSITY: 10
+  SSCI_CITY_REGION: 15
+  SSCI_REPUBLIC: 15
+  SSCI_INTERNATIONAL: 20
+  SSCI_PERMANENT: 100
+
+category_weights:        # в EduScore нет четырёх новых типов АСУ – вес 0, в расчёт не входят
+  IROS_EVENT: 0.2
+  IROS_TALK: 0
+  IROS_PUBLICATION: 0.3
+  IROS_PROJECT: 0.3
+  IROS_INTERNSHIP: 0
+  IROS_PRIZE: 0.2
+  SSCI_VOLUNTEER: 0.2
+  SSCI_INTELLECTUAL: 0.2
+  SSCI_INTELLECTUAL_PRIZE: 0.2
+  SSCI_SPORT: 0.2
+  SSCI_SOCIAL_PROJECT: 0.2
+  SSCI_IMAGE_PROJECT: 0.2
+  SSCI_STUDENT_ORG: 0.4
+  SSCI_LEADERSHIP: 0
+  SSCI_UNIVERSITY_IMAGE: 0.4
+  SSCI_UNIT_VOLUNTEER: 0
+
+max_count:
+  research: 5
+  one_time: 5
+  permanent: 1
+
+status_map: {}

@@ -1,0 +1,21 @@
+# пакет ставится в образы других модулей (data, model, backend): pip install ./igpa
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "igpa"
+version = "0.1.0"
+description = "Калькулятор IGPA по Положению «Туран» и справочникам АСУ «ТУРАН»"
+requires-python = ">=3.12"
+dependencies = ["PyYAML>=6.0"]
+
+[tool.setuptools]
+packages = ["igpa"]
+
+[tool.setuptools.package-data]
+igpa = ["presets/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -p no:cacheprovider"
