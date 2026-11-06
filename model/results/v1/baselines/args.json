@@ -1,0 +1,7 @@
+{
+  "version": "v1",
+  "data": "/repo/data/synthetic",
+  "models": "B0,B1",
+  "name": "baselines",
+  "disjoint": false
+}

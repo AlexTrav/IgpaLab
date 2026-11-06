@@ -5,6 +5,7 @@ test:
 	"$(MAKE)" -C igpa test
 	"$(MAKE)" -C data test
 	"$(MAKE)" -C research test
+	"$(MAKE)" -C model test
 
 # сгенерировать синтетический датасет (data/synthetic/v1)
 data:
