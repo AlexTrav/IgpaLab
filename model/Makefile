@@ -1,4 +1,4 @@
-.PHONY: build baselines models series hybrid recsys test clean
+.PHONY: build baselines models series hybrid recsys export test clean
 
 IMAGE := igpalab-model
 VERSION ?= v1
@@ -42,3 +42,7 @@ hybrid: build
 # шаг 7: SHAP, восстановление эффектов, серия S7, проверка рекомендаций: results/v1/recsys
 recsys: build
 	$(RUN) python -m forecast --version $(VERSION) --name recsys
+
+# шаг 8: финальные модели и данные для сайта: artifacts/v1
+export: build
+	$(RUN) python -m forecast --version $(VERSION) --name export

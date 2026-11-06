@@ -1,0 +1,6 @@
+# в образ API идут только калькулятор, код API и артефакты моделей
+*
+!igpa/igpa
+!model/artifacts
+!backend
+backend/**/__pycache__

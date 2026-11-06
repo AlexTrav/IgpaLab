@@ -38,12 +38,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="forecast", description="Модели прогноза IGPA стенда IgpaLab")
     parser.add_argument("--version", default="v1")
     parser.add_argument("--data", default="/repo/data/synthetic")
-    parser.add_argument("--name", default="baselines", help="прогон: " + ", ".join(RUNS) + ", recsys")
+    parser.add_argument("--name", default="baselines", help="прогон: " + ", ".join(RUNS) + ", recsys, export")
     parser.add_argument("--models", help="свой список моделей через запятую, из: " + ", ".join(MODELS))
     parser.add_argument("--disjoint", action="store_true", help="контроль: студенты проверки не входят в обучение")
     args = parser.parse_args(argv)
 
     d = load(Path(args.data) / args.version)
+    if args.name == "export":
+        from . import export
+        export.run(d, Path("artifacts") / args.version, Path("results") / args.version)
+        return
     if args.name == "recsys":
         from . import study
         study.run(d, pd.read_parquet(Path(args.data) / args.version / "latent.parquet"),
