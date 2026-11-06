@@ -1,4 +1,4 @@
-.PHONY: build baselines models series test clean
+.PHONY: build baselines models series hybrid test clean
 
 IMAGE := igpalab-model
 VERSION ?= v1
@@ -34,3 +34,7 @@ models: build
 # серии S0–S3 на CatBoost: вклад групп признаков: results/v1/series
 series: build
 	$(RUN) python -m forecast --version $(VERSION) --name series
+
+# своя модель IGPA-Hybrid против B0, CatBoost и стекинга (их прогнозы из прогона models) и серия S8
+hybrid: build
+	$(RUN) python -m forecast --version $(VERSION) --name hybrid

@@ -116,6 +116,7 @@ def build(d: dict, rules: str = "default", layer: str = "true") -> tuple[pd.Data
     p["delta"] = p.igpa_next - p.igpa
     p["risk"] = (p.delta <= -0.1).astype(float).where(p.delta.notna())
     p["active"] = ((p.n_research + p.n_one_time + p.n_permanent) > 0).astype(int)
+    p["_rules"], p["_layer"] = rules, layer   # служебные: гибриду нужно знать правила и слой, в признаки не входят
 
     features = (["gpa", "gpa_fall", "gpa_spring", "sem_trend", "gpa_cum", "gpa_prev", "gpa_trend", "fx_count",
                  "min_score", "low_count", "failed_credits",

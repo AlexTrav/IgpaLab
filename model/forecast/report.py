@@ -20,7 +20,7 @@ def _table(header, rows):
 
 
 def write_report(folds: pd.DataFrame, summary: pd.DataFrame, args, versus: pd.DataFrame | None = None,
-                 reference: str | None = None) -> str:
+                 reference: str | None = None, s8: pd.DataFrame | None = None) -> str:
     out = [f"# Прогон «{args.name}» на версии {args.version}" + (" (студенты проверки не в обучении)" if args.disjoint else ""),
            "", "Задача A – IGPA года t+1, задача B – снижение на 0,1 и больше. Правила: Положение или EduScore; слой: "
            "истина стенда или данные АСУ.", ""]
@@ -45,6 +45,13 @@ def write_report(folds: pd.DataFrame, summary: pd.DataFrame, args, versus: pd.Da
                       [[RULES[r.rules], LAYERS[r.layer], r.model, num(r.mae), pct(r.gain),
                         f"{num(r.diff_lo)}…{num(r.diff_hi)}", num(r.p_holm, 3)]
                        for r in versus.itertuples() if r.model != reference])
+
+    if s8 is not None:
+        out += ["## Серия S8: правила расчёта поменялись", "",
+                "Модели обучены при правилах A, IGPA следующего года считается по правилам B. MAE с 95% ДИ.", ""]
+        out += _table(["Слой", "A → B", "Вариант", "MAE", "95% ДИ"],
+                      [[LAYERS[r.layer], f"{RULES[r[2]]} → {RULES[r.to]}", r.variant, num(r.mae),
+                        f"{num(r.mae_lo)}–{num(r.mae_hi)}"] for r in s8.itertuples()])
 
     out += ["## Все проверки: среднее по трём годам", ""]
     agg = folds.groupby(["rules", "layer", "model", "group"], sort=False).mean(numeric_only=True).reset_index()

@@ -67,3 +67,18 @@ def test_shared_params_for_series(split):
     s0 = M.CatBoostModel(use=group_features("grades", "context"), shared=True).fit(train, features)
     assert s0.params == full.params
     assert set(s0.features) == set(group_features("grades", "context"))
+
+
+def test_hybrid_contract(split, monkeypatch):
+    from forecast import hybrid as H
+    monkeypatch.setattr(H, "POISSON", {**H.POISSON, "iterations": 100})
+    H.prepare(load(DATA))
+    train, test, features = split
+    test = test.head(60)
+    model = H.HybridModel(samples=30).fit(train, features)
+    pred, risk = model.predict(test), model.risk(test)
+    assert np.isfinite(pred).all() and ((risk >= 0) & (risk <= 1)).all()
+    assert np.abs(pred - test.igpa_next).mean() < 0.5
+    other = H.HybridModel(samples=30, rules="eduscore").fit(train, features)
+    assert other.c is model.c                      # компоненты общие, меняется только калькулятор
+    assert not np.allclose(other.predict(test), pred)

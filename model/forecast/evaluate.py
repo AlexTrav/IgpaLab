@@ -1,5 +1,6 @@
 """Прогон моделей по протоколу: 2 правила × 2 слоя × 3 проверочных года, итог по последнему году с ДИ и тестами."""
 
+import time
 from typing import Callable
 
 import numpy as np
@@ -32,6 +33,7 @@ def run(d: dict, models: dict[str, Factory], disjoint: bool = False,
                     threshold = P.best_threshold(val.risk.astype(int), val_score)
                 model = factory().fit(train, features)
                 pred, score = model.predict(test), model.risk(test)
+                print(f"{time.strftime('%H:%M:%S')} {rules}/{layer} проверка {year}: {name} готов", flush=True)
                 for group, mask in (("all", np.ones(len(test), bool)), ("active", test.active.to_numpy() == 1)):
                     row = {"rules": rules, "layer": layer, "year": year, "model": name, "group": group,
                            "n": int(mask.sum()), **P.regression(test.igpa_next[mask], pred[mask])}
@@ -71,3 +73,32 @@ def summary(preds: pd.DataFrame, reference: str = "B0") -> pd.DataFrame:
     out["p_holm"] = ["|".join((r.rules, r.layer, r.model)) for r in out.itertuples()]
     out["p_holm"] = out.p_holm.map(adjusted)
     return out
+
+
+def rule_change(preds: pd.DataFrame, models=("CatBoost", "Stack")) -> pd.DataFrame:
+    """Серия S8: правила расчёта поменялись (A → B), новых данных по правилам B для переобучения нет.
+
+    Прямая модель, обученная при A: как есть и с переносом прогноза изменения на текущий IGPA по B.
+    Гибрид: те же компоненты, калькулятор по правилам B. Ориентир – прямая модель, обученная при B (недостижима
+    сразу после смены правил), и B0 по правилам B.
+    """
+    rows = []
+    for layer in preds.layer.unique():
+        for a, b in (("default", "eduscore"), ("eduscore", "default")):
+            truth = preds[(preds.layer == layer) & (preds.rules == b) & (preds.model == "B0")].set_index("student_id")
+            y, igpa_b = truth.y, truth.igpa
+            variants = {"B0 по правилам B": igpa_b}
+            for m in models:
+                pa = preds[(preds.layer == layer) & (preds.rules == a) & (preds.model == m)].set_index("student_id")
+                pa = pa.loc[y.index]
+                variants[f"{m}, обучен при A, как есть"] = pa.pred
+                variants[f"{m}, обучен при A, перенос изменения"] = igpa_b + (pa.pred - pa.igpa)
+                pb = preds[(preds.layer == layer) & (preds.rules == b) & (preds.model == m)].set_index("student_id")
+                variants[f"{m}, переобучен при B (ориентир)"] = pb.pred.loc[y.index]
+            hb = preds[(preds.layer == layer) & (preds.rules == b) & (preds.model == "Hybrid")].set_index("student_id")
+            variants["Hybrid, калькулятор по B"] = hb.pred.loc[y.index]
+            for name, pred in variants.items():
+                lo, hi = P.mae_ci(y, pred)
+                rows.append({"layer": layer, "from": a, "to": b, "variant": name,
+                             "mae": float(np.abs(y - pred).mean()), "mae_lo": lo, "mae_hi": hi})
+    return pd.DataFrame(rows)
