@@ -27,9 +27,9 @@ test: build
 clean:
 	docker rmi -f $(IMAGE)
 
-# три алгоритма, ансамбли и контроль прогноза уровня: results/v1/models
+# три алгоритма, ансамбли и контроль прогноза уровня: results/v1/models; контроль с непересекающимися студентами: make models ARGS=--disjoint
 models: build
-	$(RUN) python -m forecast --version $(VERSION) --name models
+	$(RUN) python -m forecast --version $(VERSION) --name models $(ARGS)
 
 # серии S0–S3 на CatBoost: вклад групп признаков: results/v1/series
 series: build
