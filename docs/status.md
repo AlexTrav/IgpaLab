@@ -10,7 +10,7 @@
 
 | Пункт | Что | Код | Команда | Состояние |
 | --- | --- | --- | --- | --- |
-| 1 | Облегчённые модели сайта по полному протоколу: точность, честность коридоров 10–90%, калибровка риска | `model/forecast/checks.py: light` | `make -C model check NAME=light` | считается (лог `model/results/logs/check_light.log`) |
+| 1 | Облегчённые модели сайта по полному протоколу: точность, честность коридоров 10–90%, калибровка риска | `model/forecast/checks.py: light` | `make -C model check NAME=light` | готово: итог в research.md («Доработка 1») |
 | 2 | Кривая обучения (250…все студенты, тест 1000 студентов вне обучения) и насыщение на версии v1-12k | `checks.py: learning` | `make -C model check NAME=learning`; для 12k сначала `make -C data generate VERSION=v1-12k ARGS="--students 12000"`, затем `make -C model check NAME=learning VERSION=v1-12k` | код готов |
 | 3 | Сценарии: «только выгрузка АСУ и GPA» и «малые данные» (магистранты, 1 год истории) | `checks.py: scenarios` | `make -C model check NAME=scenarios` | код готов |
 | 4 | Семестровый горизонт (наивные: «не изменится» и сезонный) | `checks.py: semester` | `make -C model check NAME=semester` | код готов |
