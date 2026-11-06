@@ -34,3 +34,6 @@ data/synthetic/_*/
 
 # логи долгих прогонов моделей
 model/results/logs/
+
+# открытые наборы для серии S5 – скачиваются командой make -C data open
+data/open/

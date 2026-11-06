@@ -121,7 +121,8 @@ class HybridModel:
 
     def fit(self, train: pd.DataFrame, features: list[str]):
         self.layer, self.rules_name = train._layer.iloc[0], train._rules.iloc[0]
-        key = (self.layer, len(train), int(pd.util.hash_pandas_object(train[["student_id", "year"]], index=False).sum()))
+        key = (self.layer, tuple(features), len(train),
+               int(pd.util.hash_pandas_object(train[["student_id", "year"]], index=False).sum()))
         if key not in _COMPONENTS:   # компоненты общие для обоих правил: обучаются один раз на слой и выборку
             _COMPONENTS[key] = _Components(self.layer, train, features)
         self.c = _COMPONENTS[key]

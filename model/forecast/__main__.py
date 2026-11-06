@@ -44,6 +44,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     d = load(Path(args.data) / args.version)
+    if args.name.startswith("check-"):
+        from . import checks
+        getattr(checks, args.name[6:].replace("-", "_"))(d, Path("results") / args.version / "checks")
+        return
     if args.name == "export":
         from . import export
         export.run(d, Path("artifacts") / args.version, Path("results") / args.version)

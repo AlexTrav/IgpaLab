@@ -1,4 +1,9 @@
-"""Названия на трёх языках и шаблоны советов. Русские названия типов и статусов – из справочника igpa (АСУ)."""
+"""Названия на трёх языках и шаблоны советов. Русские названия типов и статусов – из справочника igpa (АСУ).
+
+Казахские термины сверены 07.11.2026: ЖЖОКБҰ – как в приказах МНВО (adilet.zan.kz), «волонтерлік» – как в законе
+«Волонтерлік қызмет туралы» № 42-VI. В шаблонах советов падежные окончания после чисел не используются
+(их форма зависит от произношения числа): «IGPA 2,05 мәніне дейін өседі (+0,233)».
+"""
 
 from igpa import CATEGORY_BY_CODE, STATUS_BY_CODE
 
@@ -12,7 +17,7 @@ CATEGORY = {
         "IROS_PROJECT": "Ғылыми жобалар мен стартаптарға қатысу",
         "IROS_INTERNSHIP": "Ғылыми тағылымдама",
         "IROS_PRIZE": "Ғылыми байқаулардағы жүлделі орын",
-        "SSCI_VOLUNTEER": "Еріктілер қозғалысына қатысу",
+        "SSCI_VOLUNTEER": "Волонтерлік қозғалысқа қатысу",
         "SSCI_INTELLECTUAL": "Зияткерлік және дебаттық іс-шараларға қатысу",
         "SSCI_INTELLECTUAL_PRIZE": "Зияткерлік және дебаттық іс-шаралардағы жетістіктер",
         "SSCI_SPORT": "Спорттағы жетістіктер",
@@ -21,7 +26,7 @@ CATEGORY = {
         "SSCI_STUDENT_ORG": "Студенттік ұйымға мүшелік, топ старостасы",
         "SSCI_LEADERSHIP": "Студенттік ұйымға жетекшілік ету",
         "SSCI_UNIVERSITY_IMAGE": "Университет имиджіне үлес",
-        "SSCI_UNIT_VOLUNTEER": "Құрылымдық бөлімшелердегі еріктілік",
+        "SSCI_UNIT_VOLUNTEER": "Құрылымдық бөлімшелердегі волонтерлік",
     },
     "en": {
         "IROS_EVENT": "Taking part in or organizing research events",
@@ -47,13 +52,13 @@ STATUS = {
     "kk": {
         "IROS_OVPO": "ЖЖОКБҰ (университет)",
         "IROS_REP_CITY": "Республикалық, қалалық",
-        "IROS_INT_RK": "Қазақстандағы халықаралық",
+        "IROS_INT_RK": "Қазақстан Республикасындағы халықаралық",
         "IROS_INT_ABROAD": "Халықаралық, шетелде",
         "SSCI_UNIVERSITY": "Университеттік",
         "SSCI_CITY_REGION": "Қалалық, өңірлік",
         "SSCI_REPUBLIC": "Республикалық",
         "SSCI_INTERNATIONAL": "Халықаралық",
-        "SSCI_PERMANENT": "Тұрақты университеттік жобалар (жыл бойы)",
+        "SSCI_PERMANENT": "Тұрақты жүзеге асырылатын университеттік жобалар аясында (жыл бойы)",
     },
     "en": {
         "IROS_OVPO": "University (HEI)",
@@ -161,14 +166,14 @@ def advice(kind: str, lang: str, gain: float, new: float, feasibility: float, ca
     if kind == "gpa":
         s = number(step, lang, 1)
         head = {"ru": f"Если поднимете GPA на {s}, IGPA вырастет на {g} (до {n}).",
-                "kk": f"GPA-ны {s}-ге көтерсеңіз, IGPA {g}-ге өседі ({n} дейін).",
+                "kk": f"GPA-ны {s} балға көтерсеңіз, IGPA {n} мәніне дейін өседі (+{g}).",
                 "en": f"Raise GPA by {s} and IGPA grows by {g} (to {n})."}[lang]
     else:
         c, st = category_name(category, lang), status_name(status, lang)
         head = {"ru": f"Если добавите «{c}» ({st}), IGPA вырастет на {g} (до {n}).",
-                "kk": f"«{c}» ({st}) қоссаңыз, IGPA {g}-ге өседі ({n} дейін).",
+                "kk": f"«{c}» ({st}) қоссаңыз, IGPA {n} мәніне дейін өседі (+{g}).",
                 "en": f"Add “{c}” ({st}) and IGPA grows by {g} (to {n})."}[lang]
     tail = {"ru": f"Так получается у {p}% похожих студентов.",
-            "kk": f"Ұқсас студенттердің {p}%-ы бұған қол жеткізеді.",
+            "kk": f"Ұқсас студенттердің {p} пайызы бұған қол жеткізеді.",
             "en": f"{p}% of similar students achieve this."}[lang]
     return f"{head} {tail}"

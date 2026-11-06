@@ -65,3 +65,12 @@ Computational Intelligence (IEEE CIS): искусственный интелле
 ## Открытые вопросы по статье
 
 - Кто будет докладывать и в каком формате (очно или онлайн).
+
+## Ближайшая работа: интегральный GPA в AITU (найдено 07.11.2026)
+
+Soltan G., Bekkaliyev Zh., Issayev A., Akzhol N., Basheyeva Zh. Applying data analytics and BI systems to build a student digital profile: the case of Astana IT University // Scientific Journal of Astana IT University. 2025. Vol. 23. P. 103–115. DOI: 10.37943/23JOZI8138.
+
+- Та же формула IGPA = 0,5·GPA + 0,35·iROS + 0,15·SSCI (в AITU с 2022 года), обезличенные данные 2022–2024, 9 785 студентов.
+- Описательная аналитика: дашборды Power BI, корреляции, K-means и PCA по профилям; прогноза IGPA, риска снижения и рекомендаций нет.
+- Реальные доли: в iROS участвуют 26% студентов, в SSCI 70%.
+- Для нашей статьи: цитировать как ближайшую работу (и вуз-организатор IEEE DG 2027); наше отличие – прогноз, риск, проверяемые советы, нормировка и устойчивость к смене правил.
