@@ -144,3 +144,21 @@ def design(frame: pd.DataFrame, features: list[str], columns: list[str] | None =
     return X
 
 
+
+
+GROUPS = {
+    "grades": ["gpa", "gpa_fall", "gpa_spring", "sem_trend", "gpa_cum", "fx_count", "min_score", "low_count",
+               "failed_credits"],
+    "grades_dynamics": ["gpa_prev", "gpa_trend"],
+    "achievements": ["iros", "ssci", "igpa", *[f"pts_{c}" for c in CODES], "n_research", "n_one_time", "n_permanent"],
+    "achievements_dynamics": ["iros_prev", "ssci_prev", "igpa_prev", "igpa_trend", "n_research_prev",
+                              "n_one_time_prev", "n_permanent_prev"],
+    "asu": ["asu_records", "asu_has_records", "asu_delay", "asu_rejected_share", "asu_pending_share"],
+    "context": ["year_of_study", "master", "has_history", *CATEGORICAL],
+}
+
+
+def group_features(*names: str, without: tuple[str, ...] = ()) -> list[str]:
+    """Признаки нескольких групп; without – исключить группы (для серии S3)."""
+    keep = names or tuple(GROUPS)
+    return [f for g in keep if g not in without for f in GROUPS[g]]

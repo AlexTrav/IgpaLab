@@ -31,3 +31,6 @@ data/synthetic/_*/
 .vscode/*
 !.vscode/extensions.json
 .DS_Store
+
+# логи долгих прогонов моделей
+model/results/logs/

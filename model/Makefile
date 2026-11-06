@@ -1,4 +1,4 @@
-.PHONY: build baselines test clean
+.PHONY: build baselines models series test clean
 
 IMAGE := igpalab-model
 VERSION ?= v1
@@ -16,8 +16,8 @@ build:
 
 # базовые уровни B0 и B1 по протоколу и контрольный прогон с непересекающимися студентами
 baselines: build
-	$(RUN) python -m forecast --version $(VERSION) --models B0,B1 --name baselines
-	$(RUN) python -m forecast --version $(VERSION) --models B0,B1 --name baselines --disjoint
+	$(RUN) python -m forecast --version $(VERSION) --name baselines
+	$(RUN) python -m forecast --version $(VERSION) --name baselines --disjoint
 
 # pytest: нет утечки из будущего, порядок проверок, метрики и статистика
 test: build
@@ -26,3 +26,11 @@ test: build
 # удалить образ
 clean:
 	docker rmi -f $(IMAGE)
+
+# три алгоритма, ансамбли и контроль прогноза уровня: results/v1/models
+models: build
+	$(RUN) python -m forecast --version $(VERSION) --name models
+
+# серии S0–S3 на CatBoost: вклад групп признаков: results/v1/series
+series: build
+	$(RUN) python -m forecast --version $(VERSION) --name series

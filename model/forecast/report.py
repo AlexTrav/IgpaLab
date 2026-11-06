@@ -19,7 +19,8 @@ def _table(header, rows):
             *["| " + " | ".join(str(v) for v in r) + " |" for r in rows], ""]
 
 
-def write_report(folds: pd.DataFrame, summary: pd.DataFrame, args) -> str:
+def write_report(folds: pd.DataFrame, summary: pd.DataFrame, args, versus: pd.DataFrame | None = None,
+                 reference: str | None = None) -> str:
     out = [f"# Прогон «{args.name}» на версии {args.version}" + (" (студенты проверки не в обучении)" if args.disjoint else ""),
            "", "Задача A – IGPA года t+1, задача B – снижение на 0,1 и больше. Правила: Положение или EduScore; слой: "
            "истина стенда или данные АСУ.", ""]
@@ -35,6 +36,15 @@ def write_report(folds: pd.DataFrame, summary: pd.DataFrame, args) -> str:
                     num(r.p_holm, 3), num(getattr(r, "roc_auc", float("nan")), 3),
                     "–" if pd.isna(getattr(r, "auc_lo", float("nan"))) else f"{num(r.auc_lo, 3)}–{num(r.auc_hi, 3)}"]
                    for r in summary.itertuples()])
+
+    if versus is not None:
+        title = "лучшей одиночной моделью CatBoost" if reference == "CatBoost" else "полным набором признаков S2"
+        out += [f"## Сравнение с {title}", "",
+                f"Разность MAE модели и {reference} с 95% ДИ (ниже нуля – лучше {reference}), p – Уилкоксон с поправкой Холма.", ""]
+        out += _table(["Правила", "Слой", "Модель", "MAE", f"Выигрыш к {reference}", "ДИ разности", "p (Холм)"],
+                      [[RULES[r.rules], LAYERS[r.layer], r.model, num(r.mae), pct(r.gain),
+                        f"{num(r.diff_lo)}…{num(r.diff_hi)}", num(r.p_holm, 3)]
+                       for r in versus.itertuples() if r.model != reference])
 
     out += ["## Все проверки: среднее по трём годам", ""]
     agg = folds.groupby(["rules", "layer", "model", "group"], sort=False).mean(numeric_only=True).reset_index()

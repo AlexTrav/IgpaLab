@@ -1,0 +1,7 @@
+{
+  "version": "v1",
+  "data": "/repo/data/synthetic",
+  "name": "series",
+  "models": null,
+  "disjoint": false
+}
