@@ -1,6 +1,6 @@
 # Состояние работ (читать первым после перерыва)
 
-Обновлено 07.11.2026, ~08:00. Шаг 9 (сайт) и CI/CD готовы; дальше – создать сервис на Render (вместе с пользователем) и шаг 10 (статья). Репозиторий: github.com/AlexTrav/IgpaLab (приватный), ветка main; сайт: https://alextrav.github.io/IgpaLab/ (Pages с приватного репозитория, GitHub Pro).
+Обновлено 07.11.2026, ~08:00. Шаг 9 (сайт) и CI/CD готовы; дальше – шаг 10 (статья); API на Render работает. Репозиторий: github.com/AlexTrav/IgpaLab (приватный), ветка main; сайт: https://alextrav.github.io/IgpaLab/ (Pages с приватного репозитория, GitHub Pro).
 
 ## Готово и запушено
 
@@ -22,10 +22,10 @@
 
 - `frontend/`: Vue 3, TypeScript, Tailwind 4, vue-i18n (ru, kk, en), ECharts; 16 тестов Vitest; `make -C frontend test`, `build`, `run`, `dev`. Страницы: главная (живая формула), «Мой портфель», «Студент со стенда», «Быстрый расчёт», «Исследование» (5 вкладок), «О проекте». Дополнительно: View Transitions, «Поделиться» PNG, PWA, экскурсия по портфелю, подсказки «?», анимации. Lighthouse не запускаем (инцидент с диском, см. «Грабли среды»).
 - Локальная проверка: `make -C backend run` (API на :8000) и `make -C frontend run API=http://localhost:8000` (сайт на :8080).
-- CI: `.github/workflows/ci.yml` – 6 задач в Docker (igpa, data, research, model, backend, frontend). Pages: `pages.yml` после зелёного CI. Render: `render.yaml` (igpalab-backend, free, Frankfurt, autoDeployTrigger checksPass, CORS только alextrav.github.io); сервис создаётся вручную по Blueprint вместе с пользователем.
+- CI: `.github/workflows/ci.yml` – 6 задач в Docker (igpa, data, research, model, backend, frontend). Pages: `pages.yml` после зелёного CI. Render: `render.yaml` (igpalab-backend, free, Frankfurt, autoDeployTrigger checksPass, CORS только alextrav.github.io); сервис создан вручную 07.11.2026: https://igpalab-backend.onrender.com (Frankfurt, Free, Auto-Deploy после CI, Build Filters как в render.yaml).
 - После новых проверок моделей: `make -C model export-research` пересобирает только research.json.
 
-Дальше: создать сервис Render, проверить сайт на Pages с API, шаг 10 (статья IEEE DG 2027, английский, 4–6 стр., дедлайн 17.12.2026; предварительная сдача сайта и статьи – обед 09.11.2026).
+Дальше: шаг 10 (статья IEEE DG 2027, английский, 4–6 стр., дедлайн 17.12.2026; предварительная сдача сайта и статьи – обед 09.11.2026).
 
 ## Не забыть
 
