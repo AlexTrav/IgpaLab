@@ -1,0 +1,321 @@
+@import 'tailwindcss';
+
+/* тёмная тема – по классу .dark на <html> (ставит useTheme и инлайн-скрипт в index.html) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Палитра IgpaLab «Формула в движении»: академический синий и бумажно-светлый фон днём, глубокая ночная
+   синева в тёмной теме; акцент – янтарь. Цвета данных закреплены за сущностями (GPA, iROS, SSCI; правила;
+   модели) и проверены валидатором скилла dataviz: различимость при дальтонизме, яркость и насыщенность
+   для своей темы (light и dark – PASS) */
+:root {
+  --bg: #f4f5f9;
+  --surface: #ffffff;
+  --surface-2: #eceef5;
+  --ink: #121a33;
+  --muted: #4c5571;
+  --faint: #7f88a3;
+  --line: #dde1ec;
+  --primary: #2c4bc2;
+  --primary-strong: #1d358f;
+  --primary-soft: #e1e7fb;
+  --on-primary: #ffffff;
+  --accent: #b97813;
+  --accent-soft: #fbf0d9;
+  --good: #1f8a5b;
+  --bad: #c8414a;
+
+  /* части формулы: GPA, iROS (наука), SSCI (общественная жизнь) */
+  --part-gpa: #2f7be0;
+  --part-iros: #13a89e;
+  --part-ssci: #f07d3a;
+
+  /* серии графиков по порядку: Ridge, RF, CatBoost, Stack, Hybrid, запасная; B0 – нейтральный пунктир */
+  --series-1: #2f7be0;
+  --series-2: #f07d3a;
+  --series-3: #13a89e;
+  --series-4: #d9a21b;
+  --series-5: #d9579b;
+  --series-6: #3e9b4f;
+  --grid: #e4e7f0;
+  --axis: #c5cbdb;
+}
+
+.dark {
+  --bg: #0a0e1c;
+  --surface: #11172a;
+  --surface-2: #18203a;
+  --ink: #e9ecf6;
+  --muted: #a3abc4;
+  --faint: #6e7693;
+  --line: #222b47;
+  --primary: #7d97f5;
+  --primary-strong: #a9bbfa;
+  --primary-soft: #1c2850;
+  --on-primary: #0a0e1c;
+  --accent: #eab04f;
+  --accent-soft: #3a2c12;
+  --good: #3fbf86;
+  --bad: #ef6b72;
+
+  --part-gpa: #3d86ea;
+  --part-iros: #14998f;
+  --part-ssci: #dd6f2e;
+
+  --series-1: #3d86ea;
+  --series-2: #dd6f2e;
+  --series-3: #14998f;
+  --series-4: #b98a12;
+  --series-5: #cc5194;
+  --series-6: #3a9049;
+  --grid: #1b2340;
+  --axis: #2d3758;
+}
+
+@theme {
+  --font-sans: 'Onest Variable', system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-bad: var(--bad);
+  --color-gpa: var(--part-gpa);
+  --color-iros: var(--part-iros);
+  --color-ssci: var(--part-ssci);
+
+  --animate-rise: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fly-in: fly-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* новое достижение «влетает» в список */
+@keyframes fly-in {
+  from {
+    opacity: 0;
+    transform: translateX(-18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg);
+  min-height: 100dvh;
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl border border-line bg-surface shadow-[0_1px_2px_rgb(18_26_51/0.04),0_8px_24px_-12px_rgb(18_26_51/0.10)];
+  }
+  .eyebrow {
+    @apply text-xs font-semibold tracking-[0.14em] text-faint uppercase;
+  }
+  /* цифры в таблицах и плитках – тем же шрифтом, но одинаковой ширины, чтобы столбцы не прыгали */
+  .num {
+    @apply tabular-nums;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-sm text-muted;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-strong disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-primary hover:text-primary-strong;
+  }
+  .field {
+    @apply w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink transition-colors outline-none focus:border-primary;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-muted;
+  }
+}
+
+/* видимая рамка фокуса для управления с клавиатуры */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ползунки в цветах сущности: accent-color берётся из currentColor обёртки */
+input[type='range'] {
+  accent-color: currentColor;
+}
+
+/* переход между страницами */
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-leave-to {
+  opacity: 0;
+}
+
+/* записи портфеля: появление и уход в списке (TransitionGroup) */
+.list-enter-active {
+  animation: fly-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.list-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(18px);
+}
+.list-move {
+  transition: transform 0.35s ease;
+}
+
+/* появление блоков при прокрутке (директива v-reveal) */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--reveal-i, 0) * 70ms);
+}
+[data-reveal='visible'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* волна от нажатия (директива v-ripple) */
+.ripple-host {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.ripple {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.16;
+  transform: scale(0);
+  pointer-events: none;
+  animation: ripple 0.6s ease-out forwards;
+}
+@keyframes ripple {
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* заготовки, пока данные грузятся: по серому блоку пробегает блик */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--surface-2);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+.dark .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.07), transparent);
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* карточка чуть приподнимается при наведении; у карточек с v-reveal свой переход – подъём должен быть быстрым */
+.lift,
+.lift[data-reveal] {
+  transition:
+    opacity 0.7s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px -16px rgb(18 26 51 / 0.28);
+}
+
+/* доли формулы «наливаются»: ширина сегмента плавно перетекает при каждом пересчёте */
+.pour {
+  transition:
+    width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+    flex-basis 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* фон первого экрана: сетка «миллиметровки» и мягкое свечение */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--line) 70%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--line) 70%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 40%, transparent 85%);
+}
+.hero-glow {
+  background:
+    radial-gradient(40% 50% at 20% 20%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%),
+    radial-gradient(35% 45% at 85% 30%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lift:hover {
+    transform: none;
+  }
+  .skeleton::after {
+    display: none;
+  }
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
