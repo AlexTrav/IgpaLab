@@ -4,6 +4,7 @@ import FooterSection from './components/FooterSection.vue'
 import NavBar from './components/NavBar.vue'
 import ServerBanner from './components/ServerBanner.vue'
 import { useServerStatus } from './composables/useServerStatus'
+import { viewTransitions } from './router/transitions'
 
 const { wake } = useServerStatus()
 onMounted(wake) // будим API сразу при открытии сайта
@@ -15,7 +16,7 @@ onMounted(wake) // будим API сразу при открытии сайта
   <main class="min-h-[70dvh]">
     <!-- переход между страницами: старая гаснет, новая проявляется снизу -->
     <RouterView v-slot="{ Component, route }">
-      <Transition name="page" mode="out-in">
+      <Transition :name="viewTransitions ? 'none' : 'page'" mode="out-in">
         <component :is="Component" :key="route.path" />
       </Transition>
     </RouterView>

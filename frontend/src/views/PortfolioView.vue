@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Lightbulb, LoaderCircle, RefreshCw, Telescope, Waypoints } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { CircleHelp, Lightbulb, LoaderCircle, RefreshCw, Share2, Telescope, Waypoints } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ExplainBars from '../components/ExplainBars.vue'
 import ForecastFan from '../components/ForecastFan.vue'
@@ -8,6 +8,7 @@ import PageHeader from '../components/PageHeader.vue'
 import RiskMeter from '../components/RiskMeter.vue'
 import RulesSwitch from '../components/RulesSwitch.vue'
 import TermHint from '../components/TermHint.vue'
+import TourGuide from '../components/TourGuide.vue'
 import AdviceList from '../components/portfolio/AdviceList.vue'
 import NowCard from '../components/portfolio/NowCard.vue'
 import RecordsCard from '../components/portfolio/RecordsCard.vue'
@@ -16,6 +17,7 @@ import { useMeta } from '../composables/useMeta'
 import { usePortfolio } from '../composables/usePortfolio'
 import type { AppLocale } from '../types'
 import { num, pct } from '../utils/format'
+import { drawCard, shareCard } from '../utils/share'
 
 // «Мой портфель»: слева ввод как в АСУ, справа – IGPA сейчас, прогноз IGPA-Hybrid на следующий год с коридором 10–90%
 // и риском снижения, объяснение SHAP облегчённого CatBoost и три совета
@@ -26,6 +28,35 @@ const { state, result, loading, error, add, retry } = usePortfolio()
 const year = computed(() => meta.value?.current_year ?? 2025)
 const labels = computed<[string, string]>(() => [`${year.value}/${(year.value + 1) % 100}`, `${year.value + 1}/${(year.value + 2) % 100}`])
 
+const tour = ref<InstanceType<typeof TourGuide> | null>(null)
+const sharing = ref(false)
+
+// карточка 1200×630 с IGPA, прогнозом и главным советом – PNG на компьютере, системное меню на телефоне
+async function share() {
+  const r = result.value
+  if (!r || sharing.value) return
+  sharing.value = true
+  try {
+    const l = lang.value
+    const blob = await drawCard({
+      title: t('share.title', { rules: t(`rules.${r.now.rules}`) }),
+      igpa: num(r.now.igpa, l),
+      parts: { gpa: r.now.gpa_part, iros: r.now.iros_part, ssci: r.now.ssci_part },
+      legend: [`GPA ${num(r.now.gpa_part, l)}`, `iROS ${num(r.now.iros_part, l)}`, `SSCI ${num(r.now.ssci_part, l)}`],
+      forecastLabel: t('share.forecast', { year: labels.value[1] }),
+      forecast: num(r.forecast.mean, l),
+      band: t('share.band', { lo: num(r.forecast.p10, l), hi: num(r.forecast.p90, l) }),
+      risk: t('share.risk', { risk: pct(r.forecast.risk, l) }),
+      advice: r.advice[0] ? t('share.advice', { text: r.advice[0].text }) : '',
+      footer: t('share.footer'),
+      url: 'alextrav.github.io/IgpaLab',
+    })
+    await shareCard(blob, 'igpalab-portfolio.png', t('share.title', { rules: t(`rules.${r.now.rules}`) }))
+  } finally {
+    sharing.value = false
+  }
+}
+
 function raiseGpa(step: number) {
   state.gpa = Math.min(4, +(state.gpa + step).toFixed(2))
 }
@@ -34,13 +65,19 @@ function raiseGpa(step: number) {
 <template>
   <div>
     <PageHeader :eyebrow="t('nav.portfolio')" :title="t('portfolio.title')" :lead="t('portfolio.lead')">
-      <RulesSwitch v-model="state.rules" />
+      <div class="flex flex-col items-start gap-3 sm:items-end">
+        <RulesSwitch v-model="state.rules" data-tour="rules" />
+        <div class="flex gap-2">
+          <button class="btn-ghost !py-1.5" @click="tour?.start()"><CircleHelp class="h-4 w-4" />{{ t('tour.howTo') }}</button>
+          <button v-ripple class="btn-ghost !py-1.5" :disabled="!result || sharing" @click="share"><Share2 class="h-4 w-4" />{{ t('share.button') }}</button>
+        </div>
+      </div>
     </PageHeader>
 
     <section class="mx-auto grid max-w-7xl items-start gap-6 px-4 sm:px-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
       <div class="space-y-6">
-        <StudyCard class="animate-rise" />
-        <RecordsCard class="animate-rise [animation-delay:80ms]" />
+        <StudyCard class="animate-rise" data-tour="study" />
+        <RecordsCard class="animate-rise [animation-delay:80ms]" data-tour="records" />
       </div>
 
       <div class="relative space-y-6">
@@ -53,9 +90,9 @@ function raiseGpa(step: number) {
         </div>
         <template v-if="result">
           <div class="space-y-6 transition-opacity duration-300" :class="loading && 'opacity-60'">
-            <NowCard :now="result.now" class="animate-rise" />
+            <NowCard :now="result.now" class="animate-rise" data-tour="now" />
 
-            <div class="card animate-rise p-6 [animation-delay:80ms]">
+            <div class="card animate-rise p-6 [animation-delay:80ms]" data-tour="forecast">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <h2 class="flex items-center gap-2 font-bold"><Telescope class="h-5 w-5 text-primary" />{{ t('forecast.title') }}</h2>
                 <span class="chip">IGPA-Hybrid <TermHint term="hybrid" /></span>
@@ -91,7 +128,7 @@ function raiseGpa(step: number) {
               <ExplainBars class="mt-5" :factors="result.explanation" />
             </div>
 
-            <div class="card animate-rise p-6 [animation-delay:240ms]">
+            <div class="card animate-rise p-6 [animation-delay:240ms]" data-tour="advice">
               <h2 class="flex items-center gap-2 font-bold"><Lightbulb class="h-5 w-5 text-accent" />{{ t('advice.title') }}</h2>
               <p class="mt-1 text-sm text-muted">{{ t('advice.lead') }}</p>
               <AdviceList class="mt-5" :advice="result.advice" @add-record="add" @raise-gpa="raiseGpa" />
@@ -103,5 +140,6 @@ function raiseGpa(step: number) {
         </template>
       </div>
     </section>
+    <TourGuide ref="tour" :ready="!!result" />
   </div>
 </template>
