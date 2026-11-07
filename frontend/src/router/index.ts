@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { scrollBehavior } from './scroll'
 
 // главная грузится сразу, остальные страницы – отдельными чанками при первом переходе
 const router = createRouter({
@@ -14,7 +15,7 @@ const router = createRouter({
     { path: '/about', name: 'about', component: () => import('../views/AboutView.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
-  scrollBehavior: (to, _from, saved) => saved ?? (to.hash ? { el: to.hash, top: 80 } : { top: 0 }),
+  scrollBehavior,
 })
 
 export default router
