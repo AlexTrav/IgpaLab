@@ -57,11 +57,8 @@ export default {
     ctaPortfolio: 'Рассчитать свой портфель',
     ctaStand: 'Открыть студента со стенда',
     facts: {
-      students: '6 000',
       studentsLabel: 'студентов на стенде',
-      types: '16',
       typesLabel: 'типов достижений АСУ',
-      rules: '3',
       rulesLabel: 'правила расчёта',
     },
     modesEyebrow: 'Режимы',

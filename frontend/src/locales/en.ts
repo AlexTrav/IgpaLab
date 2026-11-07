@@ -57,11 +57,8 @@ export default {
     ctaPortfolio: 'Calculate my portfolio',
     ctaStand: 'Open a stand student',
     facts: {
-      students: '6,000',
       studentsLabel: 'students on the stand',
-      types: '16',
       typesLabel: 'ASU achievement types',
-      rules: '3',
       rulesLabel: 'calculation rules',
     },
     modesEyebrow: 'Modes',

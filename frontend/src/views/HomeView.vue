@@ -15,9 +15,17 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TermHint from '../components/TermHint.vue'
+import CountFact from '../components/home/CountFact.vue'
 import LiveFormula from '../components/home/LiveFormula.vue'
 
 const { t } = useI18n()
+
+// числа первого экрана: студенты стенда, типы достижений АСУ, правила расчёта
+const FACTS = [
+  { key: 'students', value: 6000 },
+  { key: 'types', value: 16 },
+  { key: 'rules', value: 3 },
+] as const
 
 const modes = computed(() => [
   { to: '/portfolio', icon: BriefcaseBusiness, key: 'portfolio' },
@@ -61,10 +69,7 @@ const pipeline = computed(() => [
             <RouterLink v-ripple to="/stand" class="btn-ghost">{{ t('home.ctaStand') }}</RouterLink>
           </div>
           <dl class="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-line pt-6">
-            <div v-for="k in ['students', 'types', 'rules'] as const" :key="k">
-              <dt class="text-xs text-faint">{{ t(`home.facts.${k}Label`) }}</dt>
-              <dd class="num mt-1 text-2xl font-bold">{{ t(`home.facts.${k}`) }}</dd>
-            </div>
+            <CountFact v-for="f in FACTS" :key="f.key" :value="f.value" :label="t(`home.facts.${f.key}Label`)" />
           </dl>
         </div>
         <LiveFormula class="animate-rise [animation-delay:120ms]" />

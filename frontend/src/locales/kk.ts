@@ -58,11 +58,8 @@ export default {
     ctaPortfolio: 'Портфолиомды есептеу',
     ctaStand: 'Стенд студентін ашу',
     facts: {
-      students: '6 000',
       studentsLabel: 'стендтегі студент',
-      types: '16',
       typesLabel: 'АБЖ жетістік түрі',
-      rules: '3',
       rulesLabel: 'есептеу ережесі',
     },
     modesEyebrow: 'Режимдер',
