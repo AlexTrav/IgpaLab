@@ -121,7 +121,7 @@ const terms = computed(() => {
     <div class="mt-6 flex items-end justify-between gap-4">
       <div>
         <p class="text-xs font-semibold text-faint">IGPA</p>
-        <p class="num text-5xl leading-none font-bold tracking-tight whitespace-nowrap sm:text-6xl">
+        <p class="text-5xl leading-none font-bold tracking-tight whitespace-nowrap sm:text-6xl">
           <template v-if="igpa != null">{{ num(igpa, lang) }}</template>
           <span v-else class="skeleton inline-block h-12 w-32 align-middle" />
           <span class="ml-1 text-xl font-semibold text-faint">/ 4</span>

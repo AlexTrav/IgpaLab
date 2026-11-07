@@ -33,6 +33,20 @@ describe('переводы', () => {
     }
   })
 
+  it('у каждой подсказки «?» есть название и объяснение на всех языках', () => {
+    const used = new Set<string>()
+    for (const text of Object.values(sources)) for (const m of text.matchAll(/(?<![:\w-])term="([a-zA-Z_]+)"/g)) used.add(m[1])
+    for (const text of Object.values(sources)) for (const m of text.matchAll(/\bterm: '([a-zA-Z_]+)'/g)) used.add(m[1])
+    expect(used.size).toBeGreaterThan(3)
+    for (const [lang, tree] of Object.entries({ ru, kk, en })) {
+      const terms = (tree as Tree).terms as Record<string, string>
+      for (const term of used) {
+        expect(terms[`${term}Name`], `${lang}: terms.${term}Name`).toBeTruthy()
+        expect(terms[term]?.length ?? 0, `${lang}: terms.${term}`).toBeGreaterThan(30)
+      }
+    }
+  })
+
   it('длинного тире нет ни в текстах, ни в исходниках', () => {
     const dash = String.fromCharCode(0x2014)
     for (const tree of [ru, kk, en]) expect(JSON.stringify(tree)).not.toContain(dash)

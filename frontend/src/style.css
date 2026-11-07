@@ -167,9 +167,43 @@ body {
   border-radius: 6px;
 }
 
-/* ползунки в цветах сущности: accent-color берётся из currentColor обёртки */
+/* ползунки в цветах сущности (currentColor): заполненная часть дорожки – до значения (--fill ставит NumberSlider) */
 input[type='range'] {
-  accent-color: currentColor;
+  appearance: none;
+  height: 1.5rem;
+  background: transparent;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, currentColor var(--fill, 0%), var(--surface-2) var(--fill, 0%));
+}
+input[type='range']::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, currentColor var(--fill, 0%), var(--surface-2) var(--fill, 0%));
+}
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
+  border-radius: 9999px;
+  background: var(--surface);
+  border: 3px solid currentColor;
+  box-shadow: 0 2px 6px rgb(18 26 51 / 0.25);
+  transition: transform 0.15s ease;
+}
+input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--surface);
+  border: 3px solid currentColor;
+}
+input[type='range']:active::-webkit-slider-thumb {
+  transform: scale(1.15);
 }
 
 /* переход между страницами */
