@@ -15,7 +15,7 @@
 | 3 | Сценарии: «только выгрузка АСУ и GPA» и «малые данные» (магистранты, 1 год истории) | `checks.py: scenarios` | `make -C model check NAME=scenarios` | готово: research.md («Доработка 3») |
 | 4 | Семестровый горизонт (наивные: «не изменится» и сезонный) | `checks.py: semester` | `make -C model check NAME=semester` | готово: research.md («Доработка 4») |
 | 5 | S5 на открытых данных UCI Student Performance (данные скачаны в `data/open/uci`, в git не идут); OULAD по возможности | `checks.py: open_uci` | `make -C data open`, затем `make -C model check NAME=open-uci` | готово: research.md («Доработка 5»); OULAD не делали |
-| 6 | Устойчивость к генератору: (а) v1 с другим seed; (б) версия, откалиброванная под AITU (участие хоть раз: iROS 26%, SSCI 70%; у нас в АСУ 44% и 54% – наука завышена, общественное занижено); прогнать ключевые модели, сравнить выводы | – | – | не начат |
+| 6 | Устойчивость к генератору: (а) v1 с другим seed; (б) версия, откалиброванная под AITU (участие хоть раз: iROS 26%, SSCI 70%; в v1 по всем записям АСУ 47% и 58%); прогнать ключевые модели, сравнить выводы | `config_aitu.yaml`, `checks.py: robust` | models, hybrid, recsys с `VERSION=v1-seed2` и `v1-aitu`, затем `make -C model check NAME=robust` | готово: research.md («Доработка 6») |
 | 7 | Контроль моделей с непересекающимися студентами | `make -C model models` с `--disjoint` | `make -C model models ARGS=--disjoint` | готово: research.md («Доработка 7») |
 
 После каждого пункта: записать итог в research.md, закоммитить. Затем шаг 9 (сайт: три режима, см. decisions.md «сайт-стенд»), шаг 10 (статья IEEE DG 2027, английский, 4–6 стр., дедлайн 17.12.2026; предварительная сдача сайта и статьи – обед 09.11.2026).

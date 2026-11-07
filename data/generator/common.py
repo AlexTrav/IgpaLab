@@ -8,9 +8,24 @@ HERE = Path(__file__).parent
 TEMPLATES = HERE.parent / "example"
 
 
+def _merge(base: dict, extra: dict) -> dict:
+    """Вложенное слияние: словари сливаются по ключам, остальное заменяется."""
+    out = dict(base)
+    for k, v in extra.items():
+        out[k] = _merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+
 def load_config(path: str | Path | None = None, **overrides) -> dict:
-    """Конфиг генератора и структура университета; overrides (students, seed, version) перекрывают YAML."""
-    cfg = yaml.safe_load(Path(path or HERE / "config.yaml").read_text(encoding="utf-8"))
+    """Конфиг генератора и структура университета; overrides (students, seed, version) перекрывают YAML.
+
+    Файл с ключом base – надстройка: перекрывает только указанные параметры базового конфига (путь от папки файла).
+    """
+    path = Path(path or HERE / "config.yaml")
+    cfg = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if "base" in cfg:
+        cfg = _merge(load_config(path.parent / cfg.pop("base")), cfg)
+        cfg.pop("university")
     cfg.update({k: v for k, v in overrides.items() if v is not None})
     cfg["university"] = yaml.safe_load((HERE / "university.yaml").read_text(encoding="utf-8"))
     return cfg

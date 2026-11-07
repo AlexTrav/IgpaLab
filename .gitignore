@@ -22,6 +22,9 @@ dist/
 # CSV для просмотра и пробные версии синтетики – воспроизводятся командами make в data/
 data/synthetic/*/csv/
 data/synthetic/_*/
+# версии для проверок воспроизводятся командой (docs/data.md), в git только паспорта
+data/synthetic/v1-*/*
+!data/synthetic/v1-*/passport.md
 
 # логи
 *.log

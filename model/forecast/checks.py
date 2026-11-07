@@ -2,6 +2,7 @@
 
 light – облегчённые модели сайта (ручной ввод) по полному протоколу: точность, ранжирование риска, честность
 коридоров «10–90%» (доля реальных исходов внутри) и калибровка вероятности риска.
+learning, scenarios, semester, open_uci – пункты 2–5; robust – пункт 6, сводка выводов по версиям v1, v1-seed2, v1-aitu.
 """
 
 import time
@@ -274,3 +275,41 @@ def open_uci(d: dict, out: Path):
     out.mkdir(parents=True, exist_ok=True)
     res.to_csv(out / "open_uci.csv", index=False)
     return res
+
+
+# пункт 6: устойчивость выводов к генератору
+
+ROBUST = ("v1", "v1-seed2", "v1-aitu")   # основная версия, другой seed, участие как в AITU (config_aitu.yaml)
+
+
+def robust(d: dict, out: Path):
+    """Сводка выводов по версиям из уже посчитанных прогонов models, hybrid и recsys каждой версии."""
+    data, models, recsys = [], [], []
+    for ver in ROBUST:
+        res, src = Path("results") / ver, Path("/repo/data/synthetic") / ver
+        st, asu = pd.read_parquet(src / "students.parquet"), pd.read_parquet(src / "records_asu.parquet")
+        norm = pd.read_csv(res / "recsys" / "normalization.csv")
+        row = {"version": ver, "students": len(st),
+               "iros_ever": asu[asu.category.str.startswith("IROS")].student_id.nunique() / len(st),
+               "ssci_ever": asu[asu.category.str.startswith("SSCI")].student_id.nunique() / len(st)}
+        for r in norm[norm.layer == "true"].itertuples():
+            row[f"achievement_share_{r.rules}"] = r.achievement_share
+        data.append(row)
+        direct = pd.read_csv(res / "models" / "summary.csv")
+        own = pd.read_csv(res / "hybrid" / "summary.csv")
+        vs_cat = pd.read_csv(res / "hybrid" / "summary_vs_catboost.csv").set_index(["rules", "layer", "model"])
+        table = pd.concat([direct, own[own.model == "Hybrid"]], ignore_index=True)
+        for r in table.itertuples():
+            p = vs_cat.p_holm.get((r.rules, r.layer, r.model), np.nan) if r.model == "Hybrid" else np.nan
+            models.append({"version": ver, "rules": r.rules, "layer": r.layer, "model": r.model, "mae": r.mae,
+                           "gain": r.gain, "roc_auc": r.roc_auc, "p_holm": r.p_holm, "p_vs_catboost": p})
+        follow = pd.read_parquet(res / "recsys" / "follow.parquet")
+        for (rules, strategy), v in follow.groupby(["rules", "strategy"], sort=False).expected_realized.mean().items():
+            recsys.append({"version": ver, "rules": rules, "strategy": strategy, "expected_realized": v})
+        log(f"устойчивость {ver}: собрано")
+    out.mkdir(parents=True, exist_ok=True)
+    frames = {"robust_data": pd.DataFrame(data), "robust_models": pd.DataFrame(models),
+              "robust_recsys": pd.DataFrame(recsys)}
+    for name, frame in frames.items():
+        frame.to_csv(out / f"{name}.csv", index=False)
+    return frames

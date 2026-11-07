@@ -51,6 +51,8 @@
 
 Статус: версия v1 сгенерирована 07.11.2026: [data/synthetic/v1](../data/synthetic/v1/), паспорт `passport.md` там же, код и конфиг в [data/generator](../data/generator/). Ниже исходный проект; точные значения параметров в `config.yaml`.
 
+Дополнительные версии для проверок (07.11.2026, в git идут только их паспорта, сами таблицы воспроизводятся командой): v1-seed2 – другой seed (`make -C data generate VERSION=v1-seed2 ARGS="--seed 20261107"`); v1-aitu – участие как в AITU, надстройка [config_aitu.yaml](../data/generator/config_aitu.yaml) поверх `config.yaml` через ключ `base` (`make -C data generate VERSION=v1-aitu ARGS="--config generator/config_aitu.yaml"`); v1-12k – 12 000 студентов (`make -C data generate VERSION=v1-12k ARGS="--students 12000"`). Открытые данные UCI для серии S5: `make -C data open`.
+
 ### Версия v1: главное
 
 - 6 000 студентов, 31 тысяча истинных достижений, в АСУ внесено 66%; без единого достижения 31% студентов-лет; уровни: ОВПО около половины, «за рубежом» 4–9%.

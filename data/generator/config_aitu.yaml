@@ -1,0 +1,15 @@
+# Надстройка над config.yaml для проверки устойчивости (доработка 6): участие ближе к AITU
+# (Soltan и др., 2025: хотя бы одна запись iROS у 26% студентов, SSCI у 70%). Наука реже, общественное чаще.
+base: config.yaml
+version: v1-aitu
+
+activity:
+  research:
+    IROS_EVENT: 0.038
+    IROS_TALK: 0.011
+    IROS_PUBLICATION: 0.0065
+    IROS_PROJECT: 0.0045
+  social:
+    SSCI_VOLUNTEER: 0.34
+    SSCI_INTELLECTUAL: 0.28
+    SSCI_SOCIAL_PROJECT: 0.06

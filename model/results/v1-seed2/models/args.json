@@ -1,0 +1,7 @@
+{
+  "version": "v1-seed2",
+  "data": "/repo/data/synthetic",
+  "name": "models",
+  "models": "B0,B1,Ridge,RF,CatBoost,Stack",
+  "disjoint": false
+}
