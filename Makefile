@@ -1,4 +1,4 @@
-.PHONY: test data report export api
+.PHONY: test data report export api site
 
 # все автотесты
 test:
@@ -7,6 +7,7 @@ test:
 	"$(MAKE)" -C research test
 	"$(MAKE)" -C model test
 	"$(MAKE)" -C backend test
+	"$(MAKE)" -C frontend test
 
 # сгенерировать синтетический датасет (data/synthetic/v1)
 data:
@@ -23,3 +24,7 @@ export:
 # API локально на http://localhost:8000
 api:
 	"$(MAKE)" -C backend run
+
+# сайт локально на http://localhost:8080 с API на http://localhost:8000 (запустить make api)
+site:
+	"$(MAKE)" -C frontend run API=http://localhost:8000

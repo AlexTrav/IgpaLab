@@ -11,6 +11,9 @@ make -C model series      # серии S0–S3 на CatBoost (вклад гру�
 make -C model hybrid      # своя модель IGPA-Hybrid и серия S8 (смена правил): results/v1/hybrid
 make -C model recsys      # SHAP, восстановление эффектов, рекомендации, серия S7: results/v1/recsys
 make -C model export      # финальные модели для сайта и данные стенда: artifacts/v1 (~2 мин на правило)
+make -C model export-research   # только research.json для сайта (без обучения), после новых проверок
+make -C model check NAME=light  # проверки надёжности: light, learning, scenarios, semester, open-uci, robust (results/v1/checks)
+make -C model models ARGS=--disjoint   # контроль с непересекающимися студентами: results/v1/models_disjoint
 make -C model test        # 30 тестов: нет утечки из будущего, порядок проверок, метрики, устройство моделей
 ```
 
