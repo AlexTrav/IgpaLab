@@ -63,7 +63,7 @@ export const api = {
   calc: (gpa: number, records: RecordIn[], rules: RulesCode, lang: AppLocale) =>
     request<Calc>('/api/calc', { gpa, records, rules, lang }),
   portfolio: (body: PortfolioIn) => request<Portfolio>('/api/portfolio', body),
-  students: (params: { q?: string; faculty?: string; level?: string; limit?: number; offset?: number }) => {
+  students: (params: { q?: string; faculty?: string; level?: string; current?: boolean; limit?: number; offset?: number }) => {
     const query = new URLSearchParams()
     for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== '') query.set(k, String(v))
     return request<StudentsPage>(`/api/students?${query}`)
