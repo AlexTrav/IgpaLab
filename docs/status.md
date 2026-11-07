@@ -1,6 +1,6 @@
 # Состояние работ (читать первым после перерыва)
 
-Обновлено 07.11.2026, ~08:00. Шаг 9 (сайт) и CI/CD готовы; дальше – шаг 10 (статья); API на Render работает. Репозиторий: github.com/AlexTrav/IgpaLab (приватный), ветка main; сайт: https://alextrav.github.io/IgpaLab/ (Pages с приватного репозитория, GitHub Pro).
+Обновлено 07.11.2026, ~09:00. Готово всё по плану pre-project: шаги 1–9, CI/CD, сайт и API работают, черновик статьи (шаг 10) собран в DOCX и PDF на английском и для чтения на русском. Остановились на передаче статьи на вычитку; следующее – список открытых вопросов (пользователь попросит после компакта). Репозиторий: github.com/AlexTrav/IgpaLab (приватный), ветка main; сайт: https://alextrav.github.io/IgpaLab/ (Pages с приватного репозитория, GitHub Pro); API: https://igpalab-backend.onrender.com.
 
 ## Готово и запушено
 
@@ -25,7 +25,15 @@
 - CI: `.github/workflows/ci.yml` – 6 задач в Docker (igpa, data, research, model, backend, frontend). Pages: `pages.yml` после зелёного CI. Render: `render.yaml` (igpalab-backend, free, Frankfurt, autoDeployTrigger checksPass, CORS только alextrav.github.io); сервис создан вручную 07.11.2026: https://igpalab-backend.onrender.com (Frankfurt, Free, Auto-Deploy после CI, Build Filters как в render.yaml).
 - После новых проверок моделей: `make -C model export-research` пересобирает только research.json.
 
-Дальше: шаг 10 (статья IEEE DG 2027, английский, 4–6 стр., дедлайн 17.12.2026; предварительная сдача сайта и статьи – обед 09.11.2026).
+## Шаг 10: статья (черновик готов 07.11.2026)
+
+- Папка вне репозитория `pre-project/Статья - IEEE DG 2027/`: `Nerezov_Mukanova_IEEE_DG_2027.docx` и `.pdf` (подаётся, английский, 5 страниц, A4, Times New Roman встроен), `Nerezov_Mukanova_IEEE_DG_2027_RU.docx` и `.pdf` (русский перевод для чтения, тот же формат, рисунки и литература как в оригинале), `Требования/` (официальный шаблон Word с сайта, памятка CMT, шаблон слайдов), `_сборка/` (тексты `content.py` и `content_ru.py`, рисунки `figures.py`, сборка `build.py`, LibreOffice для PDF; README с командами). Требования и авторы – в [conference.md](conference.md).
+- Название: «Formula-Aware Forecasting and Recommendation of the Integrated GPA on a Synthetic University Testbed». Авторы: Alexey Nerezov (alexeynerezov@gmail.com, ORCID 0009-0009-6440-311X) и Zhanna Mukanova (zh.mukanova@turan-edu.kz, ORCID 0000-0001-6506-9007), Turan University. 3 рисунка, 3 таблицы, 2 формулы, 17 источников (12 из Scopus или WoS, самоцитирования нет), выходные данные сверены на страницах издателей.
+- Формат: двухколоночный шаблон IEEE (так требует конференция), стили и поля шаблона не менялись; после «Abstract» и «Keywords» – «–» вместо длинного тире (правило автора).
+- PDF делает LibreOffice в Docker со шрифтами Windows (`-v C:/Windows/Fonts:/usr/share/fonts/windows:ro`); экспорт через Word COM запрещён автоматической проверкой Claude Code.
+- Осталось: вычитка автором и научным руководителем; регистрация в CMT и загрузка PDF до 17.12.2026; слайды на английском по шаблону конференции (доклад 15 минут и 5 минут на вопросы).
+
+Сроки: предварительная сдача сайта и статьи – обед 09.11.2026; подача – до 17.12.2026; уведомление – 08.02.2027; финальная версия – 15.02.2027; конференция – 24–26.02.2027, AITU, Астана.
 
 ## Не забыть
 
