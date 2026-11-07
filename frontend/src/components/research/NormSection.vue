@@ -49,7 +49,7 @@ const quality = computed(() => rows(props.data, 'feasibility_quality', { rules: 
         <p class="mt-4 text-sm leading-relaxed">{{ t('research.shareConclusion') }}</p>
       </div>
       <div class="card overflow-x-auto p-6">
-        <h3 class="font-bold">{{ t('research.normTitle') }}</h3>
+        <h3 class="flex items-center gap-1.5 font-bold">{{ t('research.normTitle') }} <TermHint term="rules" /></h3>
         <table class="mt-4 w-full min-w-[26rem] text-sm">
           <thead>
             <tr class="text-left text-xs text-faint">
@@ -80,7 +80,7 @@ const quality = computed(() => rows(props.data, 'feasibility_quality', { rules: 
       <table class="mt-4 w-full min-w-[34rem] text-sm">
         <thead>
           <tr class="text-left text-xs text-faint">
-            <th class="pb-2 font-medium">{{ t('research.col.strategy') }}</th>
+            <th class="pb-2 font-medium"><span class="inline-flex items-center gap-1">{{ t('research.col.strategy') }} <TermHint term="strategy" /></span></th>
             <th v-for="r in RULES" :key="r" class="pb-2 text-right font-medium">{{ t(`rules.${r}`) }}</th>
           </tr>
         </thead>

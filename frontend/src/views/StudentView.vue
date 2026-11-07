@@ -156,7 +156,7 @@ function toPortfolio() {
           </div>
 
           <div class="card animate-rise p-6">
-            <h2 class="flex items-center gap-2 font-bold"><ClipboardList class="h-5 w-5 text-accent" />{{ t('student.records', { n: data.records.length }) }}</h2>
+            <h2 class="flex items-center gap-2 font-bold"><ClipboardList class="h-5 w-5 text-accent" />{{ t('student.records', { n: data.records.length }) }} <TermHint term="recordState" /></h2>
             <div v-for="[year, recs] in recordsByYear" :key="year" class="mt-5">
               <p class="eyebrow">{{ year }}/{{ (year + 1) % 100 }}</p>
               <ul class="mt-2 divide-y divide-line">
@@ -176,7 +176,7 @@ function toPortfolio() {
 
         <div class="space-y-6">
           <div v-if="data.forecast" class="card animate-rise p-6">
-            <h2 class="flex items-center gap-2 font-bold"><Telescope class="h-5 w-5 text-primary" />{{ t('student.forecastTitle') }}</h2>
+            <h2 class="flex items-center gap-2 font-bold"><Telescope class="h-5 w-5 text-primary" />{{ t('student.forecastTitle') }} <TermHint term="fullModel" /></h2>
             <div class="mt-4 grid grid-cols-2 gap-4">
               <div>
                 <p class="text-xs text-faint">{{ t('forecast.mean') }}</p>

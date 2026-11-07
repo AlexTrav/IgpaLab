@@ -88,7 +88,7 @@ const steps = computed(() => [
             </div>
           </dl>
           <div class="mt-6 border-t border-line pt-5">
-            <p class="flex items-center gap-2 text-sm font-semibold"><TrendingUp class="h-4 w-4 text-accent" />{{ t('quick.stepTitle') }}</p>
+            <p class="flex items-center gap-2 text-sm font-semibold"><TrendingUp class="h-4 w-4 text-accent" />{{ t('quick.stepTitle') }} <TermHint term="scale" /></p>
             <ul class="mt-3 grid grid-cols-3 gap-3 text-sm">
               <li v-for="s in steps" :key="s.key">
                 <span class="text-muted">{{ t(`parts.${s.key}`) }} +{{ num(0.1, lang, 1) }}</span>
@@ -100,7 +100,7 @@ const steps = computed(() => [
         </div>
 
         <div class="card animate-rise p-6 [animation-delay:160ms] sm:p-7">
-          <p class="flex items-center gap-2 text-sm font-semibold"><Target class="h-4 w-4 text-primary" />{{ t('quick.targetTitle') }}</p>
+          <p class="flex items-center gap-2 text-sm font-semibold"><Target class="h-4 w-4 text-primary" />{{ t('quick.targetTitle') }} <TermHint term="target" /></p>
           <NumberSlider v-model="target" class="mt-4" :label="t('quick.target')" :min="0" :max="4" :step="0.05" />
           <p class="mt-4 rounded-2xl px-4 py-3 text-sm leading-relaxed" :class="need == null ? 'bg-accent-soft text-ink' : 'bg-primary-soft text-ink'">
             <template v-if="need == null">{{ t('quick.unreachable', { max: num(igpaParts(4, iros, ssci).igpa, lang) }) }}</template>

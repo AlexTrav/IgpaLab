@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n'
 // term – ключ в разделе terms локалей: terms.<term>Name – название, terms.<term> – объяснение
 defineProps<{ term: string; glass?: boolean }>()
 const { t } = useI18n()
-const WIDTH = 256
+const WIDTH = 300
 const GAP = 8
 
 const open = ref(false)

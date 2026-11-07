@@ -78,14 +78,14 @@ const disjoint = computed(() => ({
         <dl class="mt-4 grid grid-cols-3 gap-3 text-center">
           <div class="rounded-2xl bg-surface-2 p-3"><dt class="text-xs text-faint">{{ t('research.rel.gainB0') }}</dt><dd class="num mt-1 text-xl font-bold">{{ pct(light.gain, lang, 1) }}</dd></div>
           <div class="rounded-2xl bg-surface-2 p-3"><dt class="flex items-center justify-center gap-1 text-xs text-faint">{{ t('research.rel.coverage') }} <TermHint term="band" /></dt><dd class="num mt-1 text-xl font-bold">{{ pct(light.coverage, lang) }}</dd></div>
-          <div class="rounded-2xl bg-surface-2 p-3"><dt class="text-xs text-faint">{{ t('research.rel.riskCal') }}</dt><dd class="num mt-1 text-xl font-bold">{{ pct(light.pred, lang) }} / {{ pct(light.fact, lang) }}</dd></div>
+          <div class="rounded-2xl bg-surface-2 p-3"><dt class="flex items-center justify-center gap-1 text-xs text-faint">{{ t('research.rel.riskCal') }} <TermHint term="calibration" /></dt><dd class="num mt-1 text-xl font-bold">{{ pct(light.pred, lang) }} / {{ pct(light.fact, lang) }}</dd></div>
         </dl>
         <p class="mt-4 text-sm leading-relaxed text-muted">{{ t('research.rel.lightText') }}</p>
       </div>
 
       <div class="card p-6">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <h3 class="flex items-center gap-2 font-bold"><Users class="h-5 w-5 text-primary" />{{ t('research.rel.learning') }}</h3>
+          <h3 class="flex items-center gap-2 font-bold"><Users class="h-5 w-5 text-primary" />{{ t('research.rel.learning') }} <TermHint term="learning" /></h3>
           <div class="flex rounded-full bg-surface-2 p-0.5 text-xs">
             <button v-for="v in ['v1-12k', 'v1'] as const" :key="v" class="rounded-full px-2.5 py-1 font-semibold" :class="learningVersion === v ? 'bg-surface shadow-sm' : 'text-muted'" @click="learningVersion = v">{{ t(`research.rel.version.${v}`) }}</button>
           </div>

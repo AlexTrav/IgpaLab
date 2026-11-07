@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { rows, val } from '../../composables/useResearch'
 import type { AppLocale, Research } from '../../types'
 import { num, pct, signed } from '../../utils/format'
+import TermHint from '../TermHint.vue'
 import BarList, { type Bar } from './BarList.vue'
 
 // данные стенда: участие в АСУ против реального исследования AITU, глобальная важность признаков (SHAP)
@@ -52,7 +53,7 @@ const recovery = computed(() => {
         </ul>
       </div>
       <div class="card overflow-x-auto p-6">
-        <h3 class="font-bold">{{ t('research.partTitle') }}</h3>
+        <h3 class="flex items-center gap-1.5 font-bold">{{ t('research.partTitle') }} <TermHint term="participation" /></h3>
         <p class="mt-1 text-sm text-muted">{{ t('research.partLead') }}</p>
         <table class="mt-4 w-full text-sm">
           <thead>
@@ -75,12 +76,12 @@ const recovery = computed(() => {
 
     <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
       <div class="card p-6">
-        <h3 class="font-bold">{{ t('research.shapTitle') }}</h3>
+        <h3 class="flex items-center gap-1.5 font-bold">{{ t('research.shapTitle') }} <TermHint term="shap" /></h3>
         <p class="mt-1 text-sm text-muted">{{ t('research.shapLead') }}</p>
         <BarList class="mt-5" :bars="shap" />
       </div>
       <div class="card p-6">
-        <h3 class="font-bold">{{ t('research.recoveryTitle') }}</h3>
+        <h3 class="flex items-center gap-1.5 font-bold">{{ t('research.recoveryTitle') }} <TermHint term="recovery" /></h3>
         <p class="mt-1 text-sm text-muted">{{ t('research.recoveryLead') }}</p>
         <div v-for="e in recovery" :key="e.key" class="mt-5">
           <p class="text-sm font-semibold">{{ t(`research.recovery.${e.key}`) }}</p>

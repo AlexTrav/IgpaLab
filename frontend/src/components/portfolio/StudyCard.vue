@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { MAX_YEAR, usePortfolio } from '../../composables/usePortfolio'
 import type { Level } from '../../types'
 import NumberSlider from '../NumberSlider.vue'
+import TermHint from '../TermHint.vue'
 
 // учёба: GPA этого и прошлого года, уровень и курс (курсов столько, сколько длится программа)
 const { t } = useI18n()
@@ -21,6 +22,7 @@ const years = computed(() => Array.from({ length: MAX_YEAR[state.level] }, (_, i
       <label class="flex items-center gap-2 text-sm text-muted">
         <input v-model="state.hasPrev" type="checkbox" class="h-4 w-4 accent-[var(--primary)]" />
         {{ t('portfolio.hasPrev') }}
+        <TermHint term="gpaPrev" />
       </label>
       <Transition
         enter-from-class="opacity-0 -translate-y-1"

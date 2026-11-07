@@ -76,7 +76,7 @@ STATUS = {
 RULES = {
     "default": {"ru": "Положение", "kk": "Ереже", "en": "Regulation"},
     "eduscore": {"ru": "Схема EduScore", "kk": "EduScore схемасы", "en": "EduScore scheme"},
-    "percentile": {"ru": "Положение с потолком 95%", "kk": "95% шегі бар Ереже", "en": "Regulation with 95% ceiling"},
+    "percentile": {"ru": "Лучшие 5% = 100%", "kk": "Үздік 5% = 100%", "en": "Top 5% = 100%"},
 }
 
 RULE_NOTES = {

@@ -101,7 +101,7 @@ const series = computed<Bar[]>(() =>
       <table class="w-full min-w-[40rem] text-sm">
         <thead>
           <tr class="text-left text-xs text-faint">
-            <th class="pb-2 font-medium">{{ t('research.col.model') }}</th>
+            <th class="pb-2 font-medium"><span class="inline-flex items-center gap-1">{{ t('research.col.model') }} <TermHint term="models" /></span></th>
             <th class="pb-2 text-right font-medium"><span class="inline-flex items-center gap-1">MAE <TermHint term="mae" /></span></th>
             <th class="pb-2 text-right font-medium"><span class="inline-flex items-center gap-1">{{ t('research.col.ci') }} <TermHint term="ci" /></span></th>
             <th class="pb-2 text-right font-medium"><span class="inline-flex items-center gap-1">{{ t('research.col.gain') }} <TermHint term="b0" /></span></th>
@@ -125,13 +125,13 @@ const series = computed<Bar[]>(() =>
 
     <div class="grid gap-6">
       <div class="card p-6">
-        <h3 class="font-bold">{{ t('research.s8Title') }}</h3>
+        <h3 class="flex items-center gap-1.5 font-bold">{{ t('research.s8Title') }} <TermHint term="transfer" /></h3>
         <p class="mt-1 text-sm text-muted">{{ t('research.s8Lead') }}</p>
         <ForestPlot class="mt-5" :rows="s8" :reference="s8b0" wide />
         <p class="mt-3 text-xs text-faint">{{ t('research.s8Note') }}</p>
       </div>
       <div class="card p-6">
-        <h3 class="font-bold">{{ t('research.seriesTitle') }}</h3>
+        <h3 class="flex items-center gap-1.5 font-bold">{{ t('research.seriesTitle') }} <TermHint term="series" /></h3>
         <p class="mt-1 text-sm text-muted">{{ t('research.seriesLead') }}</p>
         <BarList class="mt-5" :bars="series" />
         <p class="mt-3 text-xs text-faint">{{ t('research.seriesNote') }}</p>

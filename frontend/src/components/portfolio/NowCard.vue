@@ -27,7 +27,7 @@ const maxTop = computed(() => Math.max(...top.value.map(toIgpa), 1e-9))
           {{ num(shown, lang) }}<span class="ml-1 text-2xl font-semibold text-faint">/ 4</span>
         </p>
       </div>
-      <span class="chip">{{ t(`rules.${now.rules}`) }}</span>
+      <span class="chip">{{ t(`rules.${now.rules}`) }} <TermHint term="rules" /></span>
     </div>
     <FormulaBar class="mt-6" :gpa="now.gpa_part" :iros="now.iros_part" :ssci="now.ssci_part" />
     <dl class="mt-5 grid grid-cols-3 gap-3">
@@ -38,7 +38,7 @@ const maxTop = computed(() => Math.max(...top.value.map(toIgpa), 1e-9))
       </div>
     </dl>
     <div v-if="top.length" class="mt-6 border-t border-line pt-5">
-      <p class="text-sm font-semibold">{{ t('portfolio.byType') }}</p>
+      <p class="flex items-center gap-1.5 text-sm font-semibold">{{ t('portfolio.byType') }} <TermHint term="byType" /></p>
       <ul class="mt-3 space-y-2.5">
         <li v-for="c in top" :key="c.code" class="grid grid-cols-[1fr_4.5rem] items-center gap-3 text-sm">
           <div class="min-w-0">

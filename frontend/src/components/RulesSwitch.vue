@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import type { RulesCode } from '../types'
 import TermHint from './TermHint.vue'
 
-// переключатель правила расчёта: Положение, EduScore, потолок 95%
+// переключатель правила расчёта: Положение, EduScore, «лучшие 5% = 100%» (в коде – percentile)
 const model = defineModel<RulesCode>({ required: true })
 const { t } = useI18n()
 const RULES: RulesCode[] = ['default', 'eduscore', 'percentile']

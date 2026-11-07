@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useMeta } from '../../composables/useMeta'
 import { usePortfolio } from '../../composables/usePortfolio'
 import { SAMPLES } from '../../utils/samples'
+import TermHint from '../TermHint.vue'
 
 // достижения так же, как в АСУ: тип из 16, статус – только из тех, что подходят типу; новые записи «влетают» сверху
 const { t } = useI18n()
@@ -66,7 +67,7 @@ onClickOutside(samplesBox, () => (samplesOpen.value = false))
     <!-- добавление записи -->
     <form class="mt-5 grid gap-3 rounded-2xl bg-surface-2 p-4" @submit.prevent="add(category, status)">
       <div>
-        <label class="label" for="cat">{{ t('portfolio.type') }}</label>
+        <span class="label flex items-center gap-1.5"><label for="cat">{{ t('portfolio.type') }}</label> <TermHint term="category" /></span>
         <select id="cat" v-model="category" class="field" :disabled="!meta">
           <optgroup v-for="g in groups" :key="g.key" :label="t(`portfolio.group${g.key}`)">
             <option v-for="c in g.items" :key="c.code" :value="c.code">{{ c.name }}</option>
@@ -75,7 +76,7 @@ onClickOutside(samplesBox, () => (samplesOpen.value = false))
       </div>
       <div class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
-          <label class="label" for="status">{{ t('portfolio.status') }}</label>
+          <span class="label flex items-center gap-1.5"><label for="status">{{ t('portfolio.status') }}</label> <TermHint term="status" /></span>
           <select id="status" v-model="status" class="field" :disabled="!meta">
             <option v-for="s in allowed" :key="s" :value="s">{{ statuses.get(s)?.name ?? s }}</option>
           </select>
@@ -84,8 +85,8 @@ onClickOutside(samplesBox, () => (samplesOpen.value = false))
       </div>
     </form>
 
-    <p class="mt-5 text-sm text-muted">
-      {{ t('portfolio.count', { iros: counts.iros, ssci: counts.ssci }) }}
+    <p class="mt-5 flex items-center gap-1.5 text-sm text-muted">
+      {{ t('portfolio.count', { iros: counts.iros, ssci: counts.ssci }) }} <TermHint term="counting" />
     </p>
     <TransitionGroup tag="ul" name="list" class="relative mt-3 space-y-2">
       <li

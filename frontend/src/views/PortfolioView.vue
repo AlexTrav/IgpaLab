@@ -117,6 +117,7 @@ function raiseGpa(step: number) {
               />
               <RiskMeter class="mt-2" :risk="result.forecast.risk" />
               <p class="mt-4 rounded-2xl bg-surface-2 px-4 py-3 text-xs leading-relaxed text-muted">
+                <TermHint term="second" class="mr-1" />
                 {{ t('forecast.second', { pred: num(result.catboost.pred, lang), lo: num(result.catboost.p10, lang), hi: num(result.catboost.p90, lang), risk: pct(result.catboost.risk, lang) }) }}
                 <template v-if="!state.hasPrev"> {{ t('forecast.noPrev') }}</template>
               </p>
