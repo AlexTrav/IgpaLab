@@ -77,3 +77,9 @@ def test_students():
 def test_research():
     r = client.get("/api/research").json()
     assert {"models", "series", "hybrid", "rule_change", "normalization", "recommendations", "light_eval"} <= set(r)
+
+
+def test_research_checks_and_feature_names():
+    r = client.get("/api/research?lang=kk").json()
+    assert {"check_light", "check_learning", "check_scenarios", "robust_models", "disjoint"} <= set(r)
+    assert r["feature_names"]["gpa_trend"] != "gpa_trend"   # названия признаков на языке запроса

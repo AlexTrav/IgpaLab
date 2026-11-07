@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from igpa import CATEGORY_BY_CODE, STATUS_BY_CODE
 
+from . import texts as T
 from .engine import RULES, engine
 
 Lang = Literal["ru", "kk", "en"]
@@ -125,8 +126,10 @@ def student(student_id: str, rules: Rules = "default", lang: Lang = "ru"):
 
 
 @app.get("/api/research")
-def research():
-    return clean(engine().research)
+def research(lang: Lang = "ru"):
+    data = engine().research
+    names = {r["feature"]: T.feature_name(r["feature"], lang) for r in data.get("shap", [])}
+    return clean({**data, "feature_names": names})
 
 
 @app.get("/api/rules")

@@ -1,4 +1,4 @@
-.PHONY: build baselines models series hybrid recsys export check test clean
+.PHONY: build baselines models series hybrid recsys export export-research check test clean
 
 IMAGE := igpalab-model
 VERSION ?= v1
@@ -43,7 +43,10 @@ hybrid: build
 recsys: build
 	$(RUN) python -m forecast --version $(VERSION) --name recsys
 
-# шаг 8: финальные модели и данные для сайта: artifacts/v1
+# шаг 8: финальные модели и данные для сайта: artifacts/v1; make export-research – только research.json (без обучения)
+export-research: build
+	$(RUN) python -m forecast --version $(VERSION) --name export-research
+
 export: build
 	$(RUN) python -m forecast --version $(VERSION) --name export
 

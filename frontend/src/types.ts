@@ -149,4 +149,9 @@ export interface Student {
 
 // результаты исследования (model/artifacts/v1/research.json): таблицы строками, состав уточняется на страницах
 export type ResearchRow = Record<string, number | string | null>
-export type Research = Record<string, ResearchRow[]>
+// API отдаёт таблицы и словарь feature_names одним объектом; на сайте они разделены
+export type ResearchRaw = Record<string, ResearchRow[]> & { feature_names?: Record<string, string> }
+export interface Research {
+  tables: Record<string, ResearchRow[]>
+  names: Record<string, string>
+}

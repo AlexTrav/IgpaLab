@@ -191,4 +191,28 @@ def _export_research(results: Path, out: Path):
     shap = pd.read_csv(rec / "shap_global.csv")
     bundle["shap"] = shap[shap.layer == "obs"].to_dict("records")
     bundle["light_eval"] = pd.read_csv(out / "light_eval.csv").to_dict("records")
+    bundle.update(_checks(results))
     (out / "research.json").write_text(json.dumps(bundle, ensure_ascii=False, default=float), encoding="utf-8")
+
+
+def _checks(results: Path) -> dict:
+    """Итоги семи доработок после шага 8 (checks.py и контроль models --disjoint); чего нет – пропускается."""
+    checks, out = results / "checks", {}
+    files = {"check_light": checks / "light.csv", "check_scenarios": checks / "scenarios.csv",
+             "check_semester": checks / "semester.csv", "check_open_uci": checks / "open_uci.csv",
+             "robust_data": checks / "robust_data.csv", "robust_models": checks / "robust_models.csv",
+             "robust_recsys": checks / "robust_recsys.csv", "disjoint": results / "models_disjoint" / "summary.csv"}
+    for name, path in files.items():
+        if path.exists():
+            out[name] = pd.read_csv(path).to_dict("records")
+    learning = [pd.read_csv(p).assign(version=p.parent.parent.name)
+                for p in (checks / "learning.csv", results.parent / "v1-12k" / "checks" / "learning.csv") if p.exists()]
+    if learning:
+        out["check_learning"] = pd.concat(learning, ignore_index=True).to_dict("records")
+    return out
+
+
+def research_only(out: Path, results: Path):
+    """Пересобрать только research.json (без обучения моделей): после новых проверок."""
+    _export_research(results, out)
+    log(f"{out / 'research.json'}: обновлён")

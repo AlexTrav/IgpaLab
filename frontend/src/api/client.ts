@@ -1,4 +1,4 @@
-import type { AppLocale, Calc, Meta, Portfolio, PortfolioIn, RecordIn, Research, RulesCode, Student, StudentsPage } from '../types'
+import type { AppLocale, Calc, Meta, Portfolio, PortfolioIn, RecordIn, ResearchRaw, RulesCode, Student, StudentsPage } from '../types'
 
 // адрес API: в dev – .env.development, в сборке – аргумент Docker (по умолчанию API на Render)
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://igpalab-api.onrender.com'
@@ -70,5 +70,5 @@ export const api = {
   },
   student: (id: string, rules: RulesCode, lang: AppLocale) =>
     request<Student>(`/api/students/${encodeURIComponent(id)}?rules=${rules}&lang=${lang}`),
-  research: () => request<Research>('/api/research'),
+  research: (lang: AppLocale) => request<ResearchRaw>(`/api/research?lang=${lang}`),
 }

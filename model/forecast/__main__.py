@@ -43,6 +43,10 @@ def main(argv=None):
     parser.add_argument("--disjoint", action="store_true", help="контроль: студенты проверки не входят в обучение")
     args = parser.parse_args(argv)
 
+    if args.name == "export-research":   # только research.json для сайта, модели не трогаются
+        from . import export
+        export.research_only(Path("artifacts") / args.version, Path("results") / args.version)
+        return
     d = load(Path(args.data) / args.version)
     if args.name.startswith("check-"):
         from . import checks
