@@ -1,0 +1,26 @@
+# Render Blueprint: API IgpaLab (бесплатный план, Франкфурт). Образ собирается из корня репозитория по
+# backend/Dockerfile (состав контекста – .dockerignore): калькулятор igpa, код API и артефакты моделей.
+# Проверено в лимитах бесплатного плана (0,1 CPU, 512 МБ): память около 190 МБ, старт около 40 с
+services:
+  - type: web
+    name: igpalab-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    # выкладка – только когда CI на этом коммите зелёный (.github/workflows/ci.yml)
+    autoDeployTrigger: checksPass
+    # пересобирать только при изменении API, калькулятора или артефактов моделей
+    buildFilter:
+      paths:
+        - backend/**
+        - igpa/igpa/**
+        - model/artifacts/**
+        - .dockerignore
+        - render.yaml
+    envVars:
+      # сайт на GitHub Pages; для локальной проверки API запускается без этой переменной (тогда разрешено всё)
+      - key: CORS_ORIGINS
+        value: https://alextrav.github.io

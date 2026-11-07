@@ -1,0 +1,134 @@
+# автотесты всех частей IgpaLab на каждый push в main и на каждый pull request: калькулятор IGPA, генератор данных,
+# анализ, модели, API и сайт – параллельно, в тех же Docker-образах, что и локально (make test). Образы собираются
+# с кэшем слоёв GitHub Actions, поэтому повторный прогон занимает минуты.
+# Выкладка сайта на GitHub Pages (pages.yml) и API на Render (render.yaml) идёт только после успешного прогона
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  igpa:
+    name: Калькулятор IGPA (pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: igpa
+          load: true
+          tags: igpalab-igpa
+          cache-from: type=gha,scope=igpa
+          cache-to: type=gha,mode=max,scope=igpa
+      - name: pytest
+        run: >
+          docker run --rm -v "$PWD/igpa:/repo/igpa:ro" -v "$PWD/data/example:/repo/data/example:ro"
+          igpalab-igpa pytest -q -p no:cacheprovider
+
+  data:
+    name: Генератор данных (pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: data
+          load: true
+          tags: igpalab-data
+          cache-from: type=gha,scope=data
+          cache-to: type=gha,mode=max,scope=data
+      - name: pytest
+        run: >
+          docker run --rm -v "$PWD/data:/repo/data" -v "$PWD/igpa:/repo/igpa:ro"
+          igpalab-data pytest -q -p no:cacheprovider
+
+  research:
+    name: Анализ данных (pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: research
+          load: true
+          tags: igpalab-research
+          cache-from: type=gha,scope=research
+          cache-to: type=gha,mode=max,scope=research
+      - name: pytest
+        run: >
+          docker run --rm -v "$PWD/research:/repo/research" -v "$PWD/igpa:/repo/igpa:ro"
+          -v "$PWD/data/synthetic:/repo/data/synthetic:ro" igpalab-research pytest -q -p no:cacheprovider
+
+  model:
+    name: Модели (pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: model
+          load: true
+          tags: igpalab-model
+          cache-from: type=gha,scope=model
+          cache-to: type=gha,mode=max,scope=model
+      - name: pytest
+        run: >
+          docker run --rm -v "$PWD/model:/repo/model" -v "$PWD/igpa:/repo/igpa:ro" -v "$PWD/data:/repo/data:ro"
+          igpalab-model pytest -q -p no:cacheprovider
+
+  backend:
+    name: API (pytest на настоящих артефактах)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      # образ собирается из корня репозитория, как на Render (состав контекста – .dockerignore)
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          load: true
+          tags: igpalab-api
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+      - name: pytest
+        run: docker run --rm igpalab-api pytest -q -p no:cacheprovider tests
+
+  frontend:
+    name: Сайт (Vitest и сборка с проверкой типов)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          target: test
+          load: true
+          tags: igpalab-frontend-test
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+      - name: Vitest
+        run: docker run --rm igpalab-frontend-test
+      - name: Build (vue-tsc + Vite)
+        run: docker build --target build -t igpalab-frontend-build frontend
