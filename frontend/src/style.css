@@ -353,3 +353,13 @@ input[type='range']:active::-webkit-slider-thumb {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* полосы объяснения и реалистичности вырастают от нуля (направление задаёт origin-left/right) */
+.grow-x {
+  animation: grow-x 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
