@@ -1,26 +1,21 @@
 import { ref } from 'vue'
 import { api, listenServer } from '../api/client'
+import { nextStatus, type StatusMemory } from '../utils/serverStatus'
 
-export type ServerStatus = 'unknown' | 'waking' | 'ready' | 'down'
+export type { ServerStatus } from '../utils/serverStatus'
 
-// одно состояние на весь сайт: плашку обновляет любой запрос к API
-const status = ref<ServerStatus>('unknown')
+// одно состояние на весь сайт: плашку обновляет любой запрос к API (правила – utils/serverStatus.ts)
+let memory: StatusMemory = { status: 'unknown', lastOk: -Infinity, lastFail: -Infinity }
+const status = ref(memory.status)
 let pending: Promise<void> | null = null
-// сервер отвечал недавно – значит, он не спит: один медленный или зависший запрос плашку не включает
-const ALIVE_MS = 30_000
-let lastOk = 0
 
-listenServer((signal) => {
-  if (signal === 'ok') {
-    lastOk = Date.now()
-    status.value = 'ready'
-  } else if (Date.now() - lastOk > ALIVE_MS) {
-    status.value = signal === 'slow' ? 'waking' : 'down'
-  }
+listenServer((signal, started) => {
+  memory = nextStatus(memory, signal, Date.now(), started)
+  status.value = memory.status
 })
 
 export function useServerStatus() {
-  // будит API при открытии сайта: бесплатный Render засыпает через 15 минут без запросов
+  // будит API при открытии сайта и по кнопке «Повторить»: бесплатный Render засыпает через 15 минут без запросов
   function wake(): Promise<void> {
     pending ??= api
       .health()

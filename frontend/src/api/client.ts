@@ -1,4 +1,5 @@
 import type { AppLocale, Calc, Meta, Portfolio, PortfolioIn, RecordIn, ResearchRaw, RulesCode, Student, StudentsPage } from '../types'
+import type { ServerSignal } from '../utils/serverStatus'
 
 // адрес API: в dev – .env.development, в сборке – аргумент Docker (по умолчанию API на Render)
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://igpalab-api.onrender.com'
@@ -23,36 +24,47 @@ export class ApiError extends Error {
 }
 
 // каждый запрос сообщает, в каком состоянии сервер: плашка «Сервер просыпается…» видна на любой странице
-export type ServerSignal = 'slow' | 'ok' | 'fail'
-let onServerSignal: (signal: ServerSignal) => void = () => {}
-export function listenServer(listener: (signal: ServerSignal) => void) {
+// started – когда начался запрос (см. utils/serverStatus.ts)
+let onServerSignal: (signal: ServerSignal, started: number) => void = () => {}
+export function listenServer(listener: (signal: ServerSignal, started: number) => void) {
   onServerSignal = listener
 }
 
+// пока прокси Render отвечает 502/503/504 (сервис поднимается), запрос сам повторяется раз в 3 с до общего срока
+const RETRY_MS = 3000
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 export async function request<T>(path: string, body?: unknown, timeoutMs = TIMEOUT_MS): Promise<T> {
+  const started = Date.now()
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
-  const slow = setTimeout(() => onServerSignal('slow'), SLOW_AFTER_MS)
+  const slow = setTimeout(() => onServerSignal('slow', started), SLOW_AFTER_MS)
   let res: Response
   try {
-    res = await fetch(`${API_BASE}${path}`, {
-      method: body === undefined ? 'GET' : 'POST',
-      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: controller.signal,
-    })
+    for (;;) {
+      res = await fetch(`${API_BASE}${path}`, {
+        method: body === undefined ? 'GET' : 'POST',
+        headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        signal: controller.signal,
+      })
+      if (!WAKING_STATUSES.has(res.status)) break
+      onServerSignal('waking', started)
+      if (Date.now() - started + RETRY_MS >= timeoutMs) {
+        onServerSignal('fail', started)
+        throw new ApiError('waking', res.status)
+      }
+      await sleep(RETRY_MS)
+    }
   } catch (err) {
-    onServerSignal('fail')
+    if (err instanceof ApiError) throw err
+    onServerSignal('fail', started)
     throw new ApiError((err as Error).name === 'AbortError' ? 'timeout' : 'network')
   } finally {
     clearTimeout(timer)
     clearTimeout(slow)
   }
-  if (WAKING_STATUSES.has(res.status)) {
-    onServerSignal('fail')
-    throw new ApiError('waking', res.status)
-  }
-  onServerSignal('ok') // сервер ответил – даже ошибкой 4xx, значит, он не спит
+  onServerSignal('ok', started) // сервер ответил – даже ошибкой 4xx, значит, он не спит
   if (!res.ok) throw new ApiError(`http_${res.status}`, res.status)
   return res.json() as Promise<T>
 }
