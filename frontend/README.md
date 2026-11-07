@@ -13,7 +13,7 @@ make -C frontend dev                             # dev-сервер Vite на ht
 make -C frontend lock                            # обновить package-lock.json после правки package.json
 ```
 
-Без `API=` сайт собирается с API на Render (https://igpalab-api.onrender.com).
+Без `API=` сайт собирается с API на Render (https://igpalab-backend.onrender.com).
 
 ## Устройство
 

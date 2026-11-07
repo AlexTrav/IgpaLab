@@ -3,7 +3,7 @@
 // меняются – «сначала кэш». POST-расчёты (портфель, калькулятор) не кэшируются: без сети они честно недоступны
 const SHELL = 'igpalab-shell-v1'
 const DATA = 'igpalab-data-v1'
-const API = 'https://igpalab-api.onrender.com/api/'
+const API = 'https://igpalab-backend.onrender.com/api/'
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(SHELL).then((cache) => cache.addAll(['./', './index.html'])))

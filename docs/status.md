@@ -22,7 +22,7 @@
 
 - `frontend/`: Vue 3, TypeScript, Tailwind 4, vue-i18n (ru, kk, en), ECharts; 16 тестов Vitest; `make -C frontend test`, `build`, `run`, `dev`. Страницы: главная (живая формула), «Мой портфель», «Студент со стенда», «Быстрый расчёт», «Исследование» (5 вкладок), «О проекте». Дополнительно: View Transitions, «Поделиться» PNG, PWA, экскурсия по портфелю, подсказки «?», анимации. Lighthouse не запускаем (инцидент с диском, см. «Грабли среды»).
 - Локальная проверка: `make -C backend run` (API на :8000) и `make -C frontend run API=http://localhost:8000` (сайт на :8080).
-- CI: `.github/workflows/ci.yml` – 6 задач в Docker (igpa, data, research, model, backend, frontend). Pages: `pages.yml` после зелёного CI. Render: `render.yaml` (igpalab-api, free, Frankfurt, autoDeployTrigger checksPass, CORS только alextrav.github.io); сервис создаётся вручную по Blueprint вместе с пользователем.
+- CI: `.github/workflows/ci.yml` – 6 задач в Docker (igpa, data, research, model, backend, frontend). Pages: `pages.yml` после зелёного CI. Render: `render.yaml` (igpalab-backend, free, Frankfurt, autoDeployTrigger checksPass, CORS только alextrav.github.io); сервис создаётся вручную по Blueprint вместе с пользователем.
 - После новых проверок моделей: `make -C model export-research` пересобирает только research.json.
 
 Дальше: создать сервис Render, проверить сайт на Pages с API, шаг 10 (статья IEEE DG 2027, английский, 4–6 стр., дедлайн 17.12.2026; предварительная сдача сайта и статьи – обед 09.11.2026).

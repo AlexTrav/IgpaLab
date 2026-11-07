@@ -3,7 +3,7 @@
 # Проверено в лимитах бесплатного плана (0,1 CPU, 512 МБ): память около 190 МБ, старт около 40 с
 services:
   - type: web
-    name: igpalab-api
+    name: igpalab-backend
     runtime: docker
     plan: free
     region: frankfurt

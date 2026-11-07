@@ -20,7 +20,7 @@ concurrency:
 
 env:
   # API на Render (бесплатный тариф засыпает – сайт показывает плашку «Сервер просыпается…»)
-  VITE_API_BASE_URL: https://igpalab-api.onrender.com
+  VITE_API_BASE_URL: https://igpalab-backend.onrender.com
 
 jobs:
   build:

@@ -12,7 +12,7 @@ CMD ["npm", "test"]
 # сборка: проверка типов (vue-tsc) и бандл Vite; адрес API и базовый путь (для GitHub Pages – /IgpaLab/)
 FROM deps AS build
 COPY . .
-ARG VITE_API_BASE_URL=https://igpalab-api.onrender.com
+ARG VITE_API_BASE_URL=https://igpalab-backend.onrender.com
 ARG BASE=/
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build -- --base=$BASE

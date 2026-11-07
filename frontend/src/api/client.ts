@@ -2,7 +2,7 @@ import type { AppLocale, Calc, Meta, Portfolio, PortfolioIn, RecordIn, ResearchR
 import type { ServerSignal } from '../utils/serverStatus'
 
 // адрес API: в dev – .env.development, в сборке – аргумент Docker (по умолчанию API на Render)
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://igpalab-api.onrender.com'
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://igpalab-backend.onrender.com'
 
 // бесплатный Render засыпает: пробуждение и загрузка моделей занимают около минуты – ждём дольше обычного
 const TIMEOUT_MS = 90_000
