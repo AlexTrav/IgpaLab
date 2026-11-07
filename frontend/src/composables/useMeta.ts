@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue'
+import { computed, effectScope, ref, watch } from 'vue'
 import { api } from '../api/client'
 import { i18n } from '../i18n'
 import type { AppLocale, Meta } from '../types'
@@ -23,7 +23,8 @@ function load(lang: AppLocale) {
 export function useMeta() {
   if (!started) {
     started = true
-    watch(() => i18n.global.locale.value as AppLocale, load, { immediate: true })
+    // наблюдатель отдельно от страницы, иначе после ухода с неё смена языка не перезагрузит данные
+    effectScope(true).run(() => watch(() => i18n.global.locale.value as AppLocale, load, { immediate: true }))
   }
   const categories = computed(() => new Map((meta.value?.categories ?? []).map((c) => [c.code, c])))
   const statuses = computed(() => new Map((meta.value?.statuses ?? []).map((s) => [s.code, s])))

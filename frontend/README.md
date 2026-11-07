@@ -7,7 +7,7 @@ Vue 3, TypeScript, Tailwind CSS 4, vue-i18n (ru, kk, en), Apache ECharts, @vueus
 Всё в Docker, node_modules на диске не нужен.
 
 ```
-make -C frontend test                            # 16 тестов Vitest: переводы, формула IGPA, форматирование, плашка сервера
+make -C frontend test                            # 20 тестов Vitest: переводы, формула IGPA, форматирование, плашка сервера, прокрутка, пересчёт портфеля
 make -C frontend run API=http://localhost:8000   # собранный сайт на http://localhost:8080 (вместе с make -C backend run)
 make -C frontend dev                             # dev-сервер Vite на http://localhost:5173 (API – .env.development)
 make -C frontend lock                            # обновить package-lock.json после правки package.json

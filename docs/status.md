@@ -20,7 +20,7 @@
 
 ## Шаг 9: сайт и CI/CD (готово 07.11.2026)
 
-- `frontend/`: Vue 3, TypeScript, Tailwind 4, vue-i18n (ru, kk, en), ECharts; 16 тестов Vitest; `make -C frontend test`, `build`, `run`, `dev`. Страницы: главная (живая формула), «Мой портфель», «Студент со стенда», «Быстрый расчёт», «Исследование» (5 вкладок), «О проекте». Дополнительно: View Transitions, «Поделиться» PNG, PWA, экскурсия по портфелю, подсказки «?», анимации. Lighthouse не запускаем (инцидент с диском, см. «Грабли среды»).
+- `frontend/`: Vue 3, TypeScript, Tailwind 4, vue-i18n (ru, kk, en), ECharts; 20 тестов Vitest; `make -C frontend test`, `build`, `run`, `dev`. Страницы: главная (живая формула), «Мой портфель», «Студент со стенда», «Быстрый расчёт», «Исследование» (5 вкладок), «О проекте». Дополнительно: View Transitions, «Поделиться» PNG, PWA, экскурсия по портфелю, подсказки «?», анимации. Lighthouse не запускаем (инцидент с диском, см. «Грабли среды»).
 - Локальная проверка: `make -C backend run` (API на :8000) и `make -C frontend run API=http://localhost:8000` (сайт на :8080).
 - CI: `.github/workflows/ci.yml` – 6 задач в Docker (igpa, data, research, model, backend, frontend). Pages: `pages.yml` после зелёного CI. Render: `render.yaml` (igpalab-backend, free, Frankfurt, autoDeployTrigger checksPass, CORS только alextrav.github.io); сервис создан вручную 07.11.2026: https://igpalab-backend.onrender.com (Frankfurt, Free, Auto-Deploy после CI, Build Filters как в render.yaml).
 - После новых проверок моделей: `make -C model export-research` пересобирает только research.json.

@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { effectScope, ref, watch } from 'vue'
 import { api } from '../api/client'
 import { i18n } from '../i18n'
 import type { AppLocale, Research, ResearchRow } from '../types'
@@ -22,7 +22,8 @@ function load(lang: AppLocale) {
 export function useResearch() {
   if (!started) {
     started = true
-    watch(() => i18n.global.locale.value as AppLocale, load, { immediate: true })
+    // наблюдатель отдельно от страницы, иначе после ухода с неё смена языка не перезагрузит данные
+    effectScope(true).run(() => watch(() => i18n.global.locale.value as AppLocale, load, { immediate: true }))
   }
   return { research, failed, retry: () => load(i18n.global.locale.value as AppLocale) }
 }

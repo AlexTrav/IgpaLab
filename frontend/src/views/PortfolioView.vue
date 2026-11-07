@@ -84,7 +84,7 @@ function raiseGpa(step: number) {
         <div v-if="loading" class="absolute -top-8 right-0 flex items-center gap-1.5 text-xs text-faint" role="status">
           <LoaderCircle class="h-3.5 w-3.5 animate-spin" />{{ t('portfolio.computing') }}
         </div>
-        <div v-if="error && !result" class="card flex items-center gap-3 p-6 text-sm text-bad">
+        <div v-if="error" class="card flex items-center gap-3 p-6 text-sm text-bad">
           {{ t('common.loadFailed') }}
           <button class="btn-ghost ml-auto !py-1" @click="retry"><RefreshCw class="h-4 w-4" />{{ t('common.retry') }}</button>
         </div>

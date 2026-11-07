@@ -1,5 +1,5 @@
 import { useDebounceFn } from '@vueuse/core'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, effectScope, reactive, ref, watch } from 'vue'
 import { api } from '../api/client'
 import { i18n } from '../i18n'
 import type { AppLocale, Level, Portfolio, RecordIn, RulesCode } from '../types'
@@ -82,7 +82,9 @@ let started = false
 export function usePortfolio() {
   if (!started) {
     started = true
-    watch([state, () => i18n.global.locale.value], schedule, { deep: true })
+    // наблюдатель живёт отдельно от страницы: иначе Vue остановит его при уходе с «Моего портфеля», и после
+    // возврата расчёт перестанет обновляться
+    effectScope(true).run(() => watch([state, () => i18n.global.locale.value], schedule, { deep: true }))
     compute()
   }
 
