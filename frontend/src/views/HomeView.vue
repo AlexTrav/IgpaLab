@@ -14,6 +14,7 @@ import {
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import TermHint from '../components/TermHint.vue'
 import LiveFormula from '../components/home/LiveFormula.vue'
 
 const { t } = useI18n()
@@ -24,7 +25,12 @@ const modes = computed(() => [
   { to: '/quick', icon: Calculator, key: 'quick' },
 ])
 // главное из исследования (docs/research.md): последняя проверка 2024/25 → 2025/26 и доработки после шага 8
-const findings = computed(() => (['gain', 'share', 'auc', 'robust'] as const).map((key) => ({ key })))
+const findings = computed(() => [
+  { key: 'gain', term: 'b0' },
+  { key: 'share', term: 'achShare' },
+  { key: 'auc', term: 'rocauc' },
+  { key: 'robust', term: 'robust' },
+])
 const pipeline = computed(() => [
   { icon: FileSpreadsheet, key: 'templates' },
   { icon: Database, key: 'synthetic' },
@@ -102,7 +108,7 @@ const pipeline = computed(() => [
         <div v-for="(f, i) in findings" :key="f.key" v-reveal="i" class="card relative overflow-hidden p-6">
           <span class="absolute inset-y-6 left-0 w-1 rounded-r-full bg-accent" aria-hidden="true" />
           <p class="num text-3xl font-bold tracking-tight">{{ t(`findings.${f.key}.value`) }}</p>
-          <p class="mt-2 text-sm font-semibold">{{ t(`findings.${f.key}.title`) }}</p>
+          <p class="mt-2 flex items-center gap-1.5 text-sm font-semibold">{{ t(`findings.${f.key}.title`) }} <TermHint :term="f.term" /></p>
           <p class="mt-2 text-sm leading-relaxed text-muted">{{ t(`findings.${f.key}.text`) }}</p>
         </div>
       </div>

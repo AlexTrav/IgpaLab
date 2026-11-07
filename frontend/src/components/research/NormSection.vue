@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { rows, val } from '../../composables/useResearch'
 import type { AppLocale, Research } from '../../types'
 import { num, pct } from '../../utils/format'
+import TermHint from '../TermHint.vue'
 import BarList, { type Bar } from './BarList.vue'
 
 // серия S7: те же студенты и записи по трём правилам – сколько разброса IGPA дают достижения; и рекомендатель:
@@ -42,7 +43,7 @@ const quality = computed(() => rows(props.data, 'feasibility_quality', { rules: 
   <div class="space-y-6">
     <div class="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
       <div class="card p-6">
-        <h3 class="font-bold">{{ t('research.shareTitle') }}</h3>
+        <h3 class="flex items-center gap-1.5 font-bold">{{ t('research.shareTitle') }} <TermHint term="achShare" /></h3>
         <p class="mt-1 text-sm text-muted">{{ t('research.shareLead') }}</p>
         <BarList class="mt-5" :bars="shares" :max="1" />
         <p class="mt-4 text-sm leading-relaxed">{{ t('research.shareConclusion') }}</p>
@@ -74,7 +75,7 @@ const quality = computed(() => rows(props.data, 'feasibility_quality', { rules: 
     </div>
 
     <div class="card overflow-x-auto p-6">
-      <h3 class="font-bold">{{ t('research.recTitle') }}</h3>
+      <h3 class="flex items-center gap-1.5 font-bold">{{ t('research.recTitle') }} <TermHint term="expected" /></h3>
       <p class="mt-1 text-sm text-muted">{{ t('research.recLead') }}</p>
       <table class="mt-4 w-full min-w-[34rem] text-sm">
         <thead>

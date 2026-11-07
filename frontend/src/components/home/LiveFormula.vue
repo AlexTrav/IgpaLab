@@ -10,6 +10,7 @@ import { num } from '../../utils/format'
 import { WEIGHTS } from '../../utils/igpa'
 import { SAMPLES, type Sample } from '../../utils/samples'
 import FormulaBar from '../FormulaBar.vue'
+import TermHint from '../TermHint.vue'
 
 // «живая формула» первого экрана: три примера портфеля по очереди, IGPA каждого – калькулятором API по трём
 // правилам. Видно главное: по Положению достижения почти не двигают IGPA, по EduScore и с потолком – заметно
@@ -128,7 +129,7 @@ const terms = computed(() => {
         </p>
       </div>
       <p v-if="current" class="max-w-[13rem] text-right text-xs leading-snug text-muted">
-        {{ t('formula.share', { share: num(share * 100, lang, 1) }) }}
+        {{ t('formula.share', { share: num(share * 100, lang, 1) }) }} <TermHint term="achShare" />
       </p>
     </div>
     <FormulaBar class="mt-4" :gpa="current?.gpa_part ?? 0" :iros="current?.iros_part ?? 0" :ssci="current?.ssci_part ?? 0" />

@@ -62,7 +62,7 @@ const best = computed(() => Math.max(...props.advice.map((a) => a.expected), 1e-
           <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2" :title="t('advice.expected')">
             <div class="grow-x h-full origin-left rounded-full bg-accent" :style="{ width: `${(a.expected / best) * 100}%`, animationDelay: `${i * 90 + 200}ms` }" />
           </div>
-          <p class="mt-1 text-[11px] text-faint">{{ t('advice.expectedValue', { v: num(a.expected, lang, 3) }) }}</p>
+          <p class="mt-1 flex items-center gap-1 text-[11px] text-faint">{{ t('advice.expectedValue', { v: num(a.expected, lang, 3) }) }} <TermHint term="expected" /></p>
         </div>
       </div>
       <button v-ripple class="btn-ghost mt-3 w-full justify-center !py-1.5" @click="apply(a)">

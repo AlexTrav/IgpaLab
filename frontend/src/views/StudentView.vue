@@ -124,7 +124,7 @@ function toPortfolio() {
           { k: 'iros', v: num(last.obs_iros, lang, 3), cls: 'text-iros' },
           { k: 'ssci', v: num(last.obs_ssci, lang, 3), cls: 'text-ssci' },
         ]" :key="tile.k" class="card animate-rise p-4" :style="{ animationDelay: `${i * 60}ms` }">
-          <dt class="text-xs text-faint">{{ t(`student.tile.${tile.k}`, { y: lastYear }) }}</dt>
+          <dt class="flex items-center gap-1 text-xs text-faint">{{ t(`student.tile.${tile.k}`, { y: lastYear }) }} <TermHint :term="tile.k" /></dt>
           <dd class="num mt-1 text-2xl font-bold" :class="tile.cls">{{ tile.v }}</dd>
         </div>
       </dl>
@@ -132,13 +132,13 @@ function toPortfolio() {
       <div class="mt-6 grid items-start gap-6 lg:grid-cols-[1.25fr_1fr]">
         <div class="space-y-6">
           <div class="card animate-rise p-6">
-            <h2 class="flex items-center gap-2 font-bold"><History class="h-5 w-5 text-primary" />{{ t('student.history') }}</h2>
+            <h2 class="flex items-center gap-2 font-bold"><History class="h-5 w-5 text-primary" />{{ t('student.history') }} <TermHint term="layer" /></h2>
             <p class="mt-1 text-sm text-muted">{{ t('student.historyLead') }}</p>
             <HistoryChart class="mt-4" :history="data.history" :forecast="data.forecast" />
           </div>
 
           <div v-if="backtest.length" class="card animate-rise p-6">
-            <h2 class="flex items-center gap-2 font-bold"><Target class="h-5 w-5 text-accent" />{{ t('student.backtest', { y: backYear }) }}</h2>
+            <h2 class="flex items-center gap-2 font-bold"><Target class="h-5 w-5 text-accent" />{{ t('student.backtest', { y: backYear }) }} <TermHint term="b0" /></h2>
             <p class="mt-1 text-sm text-muted">
               {{ t('student.backtestLead', { y: num(backtest[0].y, lang) }) }}
               <strong>{{ backFall ? t('student.fell') : t('student.notFell') }}</strong>

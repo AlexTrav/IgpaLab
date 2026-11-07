@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { rows, val } from '../../composables/useResearch'
 import type { AppLocale, Research, ResearchRow } from '../../types'
 import { num, pct } from '../../utils/format'
+import TermHint from '../TermHint.vue'
 import LearningChart from './LearningChart.vue'
 
 // семь проверок после основных серий: числа считаются здесь из таблиц research.json, тексты – выводы
@@ -76,7 +77,7 @@ const disjoint = computed(() => ({
         <h3 class="flex items-center gap-2 font-bold"><ScanLine class="h-5 w-5 text-primary" />{{ t('research.rel.light') }}</h3>
         <dl class="mt-4 grid grid-cols-3 gap-3 text-center">
           <div class="rounded-2xl bg-surface-2 p-3"><dt class="text-xs text-faint">{{ t('research.rel.gainB0') }}</dt><dd class="num mt-1 text-xl font-bold">{{ pct(light.gain, lang, 1) }}</dd></div>
-          <div class="rounded-2xl bg-surface-2 p-3"><dt class="text-xs text-faint">{{ t('research.rel.coverage') }}</dt><dd class="num mt-1 text-xl font-bold">{{ pct(light.coverage, lang) }}</dd></div>
+          <div class="rounded-2xl bg-surface-2 p-3"><dt class="flex items-center justify-center gap-1 text-xs text-faint">{{ t('research.rel.coverage') }} <TermHint term="band" /></dt><dd class="num mt-1 text-xl font-bold">{{ pct(light.coverage, lang) }}</dd></div>
           <div class="rounded-2xl bg-surface-2 p-3"><dt class="text-xs text-faint">{{ t('research.rel.riskCal') }}</dt><dd class="num mt-1 text-xl font-bold">{{ pct(light.pred, lang) }} / {{ pct(light.fact, lang) }}</dd></div>
         </dl>
         <p class="mt-4 text-sm leading-relaxed text-muted">{{ t('research.rel.lightText') }}</p>

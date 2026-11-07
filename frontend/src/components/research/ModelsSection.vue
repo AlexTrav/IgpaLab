@@ -102,10 +102,10 @@ const series = computed<Bar[]>(() =>
         <thead>
           <tr class="text-left text-xs text-faint">
             <th class="pb-2 font-medium">{{ t('research.col.model') }}</th>
-            <th class="pb-2 text-right font-medium">MAE</th>
-            <th class="pb-2 text-right font-medium">{{ t('research.col.ci') }}</th>
-            <th class="pb-2 text-right font-medium">{{ t('research.col.gain') }}</th>
-            <th class="pb-2 text-right font-medium">ROC-AUC</th>
+            <th class="pb-2 text-right font-medium"><span class="inline-flex items-center gap-1">MAE <TermHint term="mae" /></span></th>
+            <th class="pb-2 text-right font-medium"><span class="inline-flex items-center gap-1">{{ t('research.col.ci') }} <TermHint term="ci" /></span></th>
+            <th class="pb-2 text-right font-medium"><span class="inline-flex items-center gap-1">{{ t('research.col.gain') }} <TermHint term="b0" /></span></th>
+            <th class="pb-2 text-right font-medium"><span class="inline-flex items-center gap-1">ROC-AUC <TermHint term="rocauc" /></span></th>
             <th class="pb-2 text-right font-medium"><span class="inline-flex items-center gap-1">p <TermHint term="holm" /></span></th>
           </tr>
         </thead>

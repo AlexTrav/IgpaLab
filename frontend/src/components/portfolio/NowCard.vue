@@ -32,7 +32,7 @@ const maxTop = computed(() => Math.max(...top.value.map(toIgpa), 1e-9))
     <FormulaBar class="mt-6" :gpa="now.gpa_part" :iros="now.iros_part" :ssci="now.ssci_part" />
     <dl class="mt-5 grid grid-cols-3 gap-3">
       <div v-for="k in ['gpa', 'iros', 'ssci'] as const" :key="k" class="rounded-2xl bg-surface-2 px-3 py-2.5">
-        <dt class="flex items-center gap-1 text-xs font-semibold text-muted">{{ t(`parts.${k}`) }}</dt>
+        <dt class="flex items-center gap-1 text-xs font-semibold text-muted">{{ t(`parts.${k}`) }} <TermHint :term="k" /></dt>
         <dd class="num mt-0.5 text-lg font-bold" :class="`text-${k}`">{{ num(now[`${k}_part`], lang) }}</dd>
         <dd v-if="k !== 'gpa'" class="num text-[11px] text-faint">{{ t('portfolio.share', { v: num(now[k], lang, 3) }) }}</dd>
       </div>
