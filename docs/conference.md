@@ -38,7 +38,7 @@ Computational Intelligence (IEEE CIS): искусственный интелле
 
 ## Черновой каркас статьи
 
-Рабочее название (обсуждаемо): «Formula-Aware Forecasting and Recommendation of Integrated GPA on a Synthetic University Testbed».
+Название (согласовано 09.11.2026): «Forecasting the Integrated GPA and Recommending Student Achievements with a Formula-Aware Hybrid Model». Прежнее «Formula-Aware Forecasting and Recommendation of the Integrated GPA on a Synthetic University Testbed» отклонено: «на стенде синтетического университета» звучит неестественно; о синтетике сказано в аннотации.
 
 - Abstract: IGPA в Казахстане, нет данных, стенд с известной истиной, три алгоритма, ансамбль, гибрид с формулой, рекомендации с пересчётом, главный результат на стенде.
 - Introduction: IGPA (приказ № 2, Положение «Туран»), задача прогноза и рекомендаций, вклад работы.
@@ -61,7 +61,7 @@ Computational Intelligence (IEEE CIS): искусственный интелле
 
 - Нерезов А. К. и научный руководитель Муканова Ж. А. (преподаватель-соавтор, правило конференции разрешает одного).
 - Нерезов Алексей (Alexey Nerezov): магистрант ВТиПО, научно-педагогическое направление (в статье: Computer Engineering and Software, Master’s, research and teaching track), Turan University; e-mail в статье – основной alexeynerezov@gmail.com (учебный 26271617@turan-edu.kz); ORCID 0009-0009-6440-311X.
-- Черновик статьи (07.11.2026): `pre-project/Статья - IEEE DG 2027/Nerezov_Mukanova_IEEE_DG_2027.docx` и `.pdf`, 5 страниц; русский перевод для чтения – `…_RU.docx` и `.pdf`; сборка и тексты – в `_сборка/` (README там же). Название: «Formula-Aware Forecasting and Recommendation of the Integrated GPA on a Synthetic University Testbed»; 17 источников (12 из Scopus или WoS, самоцитирования нет).
+- Черновик статьи (07.11.2026): `pre-project/Статья - IEEE DG 2027/Nerezov_Mukanova_IEEE_DG_2027.docx` и `.pdf`, 5 страниц; русский перевод для чтения – `…_RU.docx` и `.pdf`; сборка и тексты – в `_сборка/` (README там же). Название: «Forecasting the Integrated GPA and Recommending Student Achievements with a Formula-Aware Hybrid Model» (русский перевод – «Прогноз интегрального GPA и рекомендации достижений студентам с помощью гибридной модели, учитывающей формулу расчёта»); 17 источников (12 из Scopus или WoS, самоцитирования нет).
 - Муканова Жанна Аскаровна: PhD (6D070400 «Вычислительная техника и программное обеспечение», 2024), директор Высшей школы компьютерной инженерии Университета «Туран»; e-mail zh.mukanova@turan-edu.kz; ORCID 0000-0001-6506-9007; Scopus Author ID 57212464069 (из профиля АСУ, сообщено пользователем 07.11.2026).
 
 ## Шаблон и оформление (официальный шаблон, скачан 07.11.2026)
