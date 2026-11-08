@@ -4,7 +4,7 @@
 
 ## Готово и запушено
 
-Шаги 1–8: калькулятор `igpa/` (75 тестов), генератор `data/` (v1 на 6000 студентов, 25 тестов), анализ `research/` (6 тестов), модели `model/` (B0, B1, Ridge, RF, CatBoost, Stack, Mean, IGPA-Hybrid; серии S0–S3, S7, S8; рекомендатель; SHAP; 30 тестов), финальные модели `model/artifacts/v1`, API `backend/` (13 тестов). Итоги каждого шага – в [research.md](research.md), решения – в [decisions.md](decisions.md).
+Шаги 1–8: калькулятор `igpa/` (75 тестов), генератор `data/` (v1 на 6000 студентов, 25 тестов), анализ `research/` (6 тестов), модели `model/` (B0, B1, Ridge, RF, CatBoost, Stack, Mean, IGPA-Hybrid; серии S0–S3, S7, S8; рекомендатель; SHAP; 30 тестов), финальные модели `model/artifacts/v1`, API `backend/` (16 тестов). Итоги каждого шага – в [research.md](research.md), решения – в [decisions.md](decisions.md).
 
 ## Семь доработок после шага 8 (готовы все)
 

@@ -9,7 +9,7 @@ import TermHint from '../TermHint.vue'
 
 // три совета: точный прирост IGPA по калькулятору и реалистичность – как часто похожие студенты этого добиваются;
 // советы с достижением можно сразу добавить в портфель, с GPA – применить
-const props = defineProps<{ advice: Advice[] }>()
+defineProps<{ advice: Advice[] }>()
 const emit = defineEmits<{ addRecord: [category: string, status: string]; raiseGpa: [step: number] }>()
 const { t, locale } = useI18n()
 const { categories, statuses } = useMeta()
@@ -23,7 +23,6 @@ function apply(a: Advice) {
   if (a.kind === 'gpa') emit('raiseGpa', a.gpa_step!)
   else emit('addRecord', a.category!, a.status!)
 }
-const best = computed(() => Math.max(...props.advice.map((a) => a.expected), 1e-9))
 </script>
 
 <template>
@@ -59,8 +58,9 @@ const best = computed(() => Math.max(...props.advice.map((a) => a.expected), 1e-
               <dd class="num text-base font-bold">{{ pct(a.feasibility, lang) }}</dd>
             </div>
           </dl>
-          <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2" :title="t('advice.expected')">
-            <div class="grow-x h-full origin-left rounded-full bg-accent" :style="{ width: `${(a.expected / best) * 100}%`, animationDelay: `${i * 90 + 200}ms` }" />
+          <!-- полоса – реалистичность (доля похожих студентов, которые это сделали), а не ожидаемый прирост -->
+          <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2" :title="t('advice.feasibility')">
+            <div class="grow-x h-full origin-left rounded-full bg-accent" :style="{ width: `${a.feasibility * 100}%`, animationDelay: `${i * 90 + 200}ms` }" />
           </div>
           <p class="mt-1 flex items-center gap-1 text-[11px] text-faint">{{ t('advice.expectedValue', { v: num(a.expected, lang, 3) }) }} <TermHint term="expected" /></p>
         </div>

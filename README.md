@@ -34,8 +34,8 @@ IGPA = 0,5 · GPA + 0,35 · iROS · 4 + 0,15 · SSCI · 4 (Положение «
 | [data/](data/) | Шаблоны выгрузок АСУ, генератор синтетики (два слоя: истина и АСУ), версия v1 на 6 000 студентов, загрузка открытых данных UCI | 25 |
 | [research/](research/) | Анализ данных: отчёт и рисунки ru/en | 6 |
 | [model/](model/) | Протокол по годам, базовые уровни, Ridge, Random Forest, CatBoost, смеси, своя модель IGPA-Hybrid, SHAP, рекомендатель, семь проверок надёжности | 30 |
-| [backend/](backend/) | API на FastAPI: расчёт, прогноз, объяснение, советы, студенты стенда, результаты исследования | 13 |
-| [frontend/](frontend/) | Сайт на Vue 3, TypeScript, Tailwind 4, ECharts | 16 |
+| [backend/](backend/) | API на FastAPI: расчёт, прогноз, объяснение, советы, студенты стенда, результаты исследования | 16 |
+| [frontend/](frontend/) | Сайт на Vue 3, TypeScript, Tailwind 4, ECharts | 20 |
 
 ## Запуск
 

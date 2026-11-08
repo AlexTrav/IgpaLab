@@ -173,9 +173,17 @@ class Engine:
                 gains.append(self.igpa(inp["gpa"], list(items) + [(code, value)], rules) - base)
         gains = np.array(gains)
         expected = gains * feas
-        out = []
-        for j in [j for j in np.argsort(-expected) if gains[j] > 1e-9][:top]:
+        # три разных шага: не больше одного совета про GPA и одного на тип достижения (иначе «GPA +0,1» и «GPA +0,2»
+        # или один тип с разными статусами занимают два места из трёх); первый совет от этого не меняется
+        out, seen = [], set()
+        for j in np.argsort(-expected):
             kind, code, value = self.actions[j]
+            key = "gpa" if kind == "gpa" else code
+            if gains[j] <= 1e-9 or key in seen:
+                continue
+            if len(out) == top:
+                break
+            seen.add(key)
             out.append({"kind": kind, "category": code if kind == "record" else None,
                         "status": value if kind == "record" else None, "gpa_step": value if kind == "gpa" else None,
                         "gain": float(gains[j]), "feasibility": float(feas[j]), "expected": float(expected[j]),

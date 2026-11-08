@@ -58,6 +58,17 @@ def test_advice_gain_is_exact():
         assert a["igpa_after"] == pytest.approx(after)
 
 
+@pytest.mark.parametrize("rules", ["default", "eduscore", "percentile"])
+def test_advice_are_different_steps(rules):
+    # портфель со скриншота: низкий GPA, где «GPA +0,1» и «GPA +0,2» оба попадали в тройку
+    body = {"gpa": 1.45, "gpa_prev": 2.63, "year_of_study": 3, "level": "bachelor", "rules": rules,
+            "records": [{"category": "IROS_EVENT", "status": "IROS_OVPO"}] * 2}
+    for portfolio in (body, {**PORTFOLIO, "rules": rules}):
+        advice = client.post("/api/portfolio", json=portfolio).json()["advice"]
+        keys = ["gpa" if a["kind"] == "gpa" else a["category"] for a in advice]
+        assert len(advice) == 3 and len(set(keys)) == 3
+
+
 def test_portfolio_validation():
     assert client.post("/api/portfolio", json={**PORTFOLIO, "gpa": 4.5}).status_code == 422
     assert client.post("/api/portfolio", json={**PORTFOLIO, "records": [{"category": "X", "status": "IROS_OVPO"}]}).status_code == 422
