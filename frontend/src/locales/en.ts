@@ -414,7 +414,7 @@ export default {
       top5Ask: 'How does the ASU count them?',
       newTypesTitle: 'Four new types without weights',
       newTypes: 'The ASU reference book has 16 types, the 2025 Regulation has 12. Giving a talk counts as taking part in events, a research internship as a project, leading organisations as membership, volunteering in units as image projects.',
-      newTypesAsk: 'Is there a new edition of the Regulation with weights?',
+      newTypesAsk: 'There is no new edition of the Regulation with weights, so the weights by analogy remain an assumption.',
       ssciMixTitle: 'One-off and permanent parts of SSCI',
       ssciMix: 'One-off events and permanent projects have their own weights in SSCI, each summing to 1. The stand takes the mean of the two parts.',
       ssciMixAsk: 'How does the ASU combine them into one SSCI?',
