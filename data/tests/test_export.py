@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from generator.common import TEMPLATES
-from generator.export import _pivot_counts, igpa_export, iros_pivot, ssci_pivot
+from generator.export import SSCI_TEMPLATES, _pivot_counts, igpa_export, iros_pivot, ssci_pivot
 from igpa import CATEGORIES, Block, Profile, categories, statuses
 
 DAY = dt.date(2026, 6, 30)
@@ -48,14 +48,22 @@ def test_iros_pivot_keeps_template(data, tmp_path):
         assert total >= max(by_status) and total <= sum(by_status)
 
 
-def test_ssci_pivot_by_analogy(data, tmp_path):
+@pytest.mark.parametrize("block", [Block.ONE_TIME, Block.PERMANENT])
+def test_ssci_pivots_keep_templates(data, tmp_path, block):
     path = tmp_path / "ssci.xlsx"
-    ssci_pivot(path, DAY, _pivot_counts(data["records_asu"], 2025, DAY))
-    ws = openpyxl.load_workbook(path).active
-    names = [s.asu_name for s in statuses(Block.ONE_TIME) + statuses(Block.PERMANENT)]
-    assert [ws.cell(4, c).value for c in range(4, 9)] == names
-    assert [ws.cell(r, 2).value for r in range(5, 15)] == [c.asu_title for c in categories(profile=Profile.SSCI)]
-    assert "D3:H3" in {str(m) for m in ws.merged_cells.ranges}
+    pivot = _pivot_counts(data["records_asu"], 2025, DAY)
+    ssci_pivot(path, DAY, pivot, block)
+    ws, tpl = openpyxl.load_workbook(path).active, _template(SSCI_TEMPLATES[block][0])
+    for row in (2, 3, 4):
+        assert [c.value for c in ws[row]] == [c.value for c in tpl[row]]
+    assert {str(m) for m in ws.merged_cells.ranges} == {str(m) for m in tpl.merged_cells.ranges}
+    # типы в шаблоне АСУ идут в том же порядке, что в справочнике, а уровни – как статусы блока
+    cats = categories(profile=Profile.SSCI, block=block)
+    assert [ws.cell(r, 2).value for r in range(5, 5 + len(cats))] == [tpl.cell(r, 2).value for r in range(5, 5 + len(cats))]
+    assert ws.max_column == 3 + len(statuses(block)) and ws.max_row == 4 + len(cats)
+    for r, c in enumerate(cats, start=5):
+        expected = pivot.loc[c.code] if c.code in pivot.index else {}
+        assert ws.cell(r, 3).value == int(expected.get("total", 0))
 
 
 def test_no_template_author_in_exports(data, year_rows, tmp_path):
@@ -63,7 +71,8 @@ def test_no_template_author_in_exports(data, year_rows, tmp_path):
     pivot = _pivot_counts(data["records_asu"], 2025, DAY)
     igpa_export(tmp_path / "a.xlsx", DAY, year_rows, data["students"])
     iros_pivot(tmp_path / "b.xlsx", DAY, pivot)
-    ssci_pivot(tmp_path / "c.xlsx", DAY, pivot)
+    ssci_pivot(tmp_path / "c.xlsx", DAY, pivot, Block.ONE_TIME)
+    ssci_pivot(tmp_path / "d.xlsx", DAY, pivot, Block.PERMANENT)
     for path in tmp_path.glob("*.xlsx"):
         with zipfile.ZipFile(path) as z:
             assert not any(author in z.read(name).decode("utf-8", "ignore") for name in z.namelist()), path

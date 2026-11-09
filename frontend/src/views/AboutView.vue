@@ -12,7 +12,7 @@ const { t, locale } = useI18n()
 const lang = computed(() => locale.value as AppLocale)
 
 // автотесты по модулям (pytest и Vitest); обновлять при изменении числа тестов
-const TESTS = { igpa: 75, data: 25, research: 6, model: 30, backend: 16, frontend: 20 } as const
+const TESTS = { igpa: 75, data: 26, research: 6, model: 30, backend: 16, frontend: 20 } as const
 const total = Object.values(TESTS).reduce((a, b) => a + b, 0)
 
 const facts = computed(() => [

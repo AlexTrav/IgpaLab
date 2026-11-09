@@ -1,7 +1,6 @@
 """Запись версии датасета: таблицы Parquet, выгрузки xlsx в формате шаблонов АСУ, CSV для просмотра."""
 
 import datetime as dt
-from copy import copy
 from pathlib import Path
 
 import openpyxl
@@ -15,7 +14,13 @@ from .common import TEMPLATES, academic_year, on
 IGPA_TEMPLATE = "*Сводная выгрузка студентов по IGPA.xlsx"
 IROS_TEMPLATE = "*Сводная таблица по IROS.xlsx"
 STAMP = 'Сформировано из системы АСУ "ТУРАН" - Синтетические данные IgpaLab - {:%d.%m.%Y} 12:00:00'
-SSCI_STATUSES = statuses(Block.ONE_TIME) + statuses(Block.PERMANENT)
+# блок SSCI -> (шаблон, имя файла выгрузки без даты), как в АСУ
+SSCI_TEMPLATES = {
+    Block.ONE_TIME: ("*Сводная таблица по SSCI-За разовые мероприятия.xlsx",
+                     "Сводная таблица по SSCI-За разовые мероприятия"),
+    Block.PERMANENT: ("*Сводная таблица по SSCI-В рамках постоянно реализуемых*.xlsx",
+                      "Сводная таблица по SSCI-В рамках постоянно реализуемых университетских проектов (в течении года)"),
+}
 
 
 def write_tables(out: Path, tables: dict[str, pd.DataFrame]):
@@ -49,7 +54,8 @@ def _export_all(folder: Path, day: dt.date, year: int, rows, asu, students):
     igpa_export(folder / f"{prefix}Сводная выгрузка студентов по IGPA.xlsx", day, rows, students)
     pivot = _pivot_counts(asu, year, day)
     iros_pivot(folder / f"{prefix}Сводная таблица по IROS.xlsx", day, pivot)
-    ssci_pivot(folder / f"{prefix}Сводная таблица по SSCI.xlsx", day, pivot)
+    for block, (_, name) in SSCI_TEMPLATES.items():
+        ssci_pivot(folder / f"{prefix}{name}.xlsx", day, pivot, block)
 
 
 def _template(pattern: str):
@@ -81,8 +87,8 @@ def _pivot_counts(asu: pd.DataFrame, year: int, day: dt.date) -> pd.DataFrame:
     return pd.concat([total, by_status], axis=1).fillna(0).astype(int)
 
 
-def _fill_pivot(ws, profile: Profile, status_list, pivot: pd.DataFrame, first_row: int = 5):
-    for row, category in enumerate(categories(profile=profile), start=first_row):
+def _fill_pivot(ws, profile: Profile, status_list, pivot: pd.DataFrame, first_row: int = 5, block: Block | None = None):
+    for row, category in enumerate(categories(profile=profile, block=block), start=first_row):
         counts = pivot.loc[category.code] if category.code in pivot.index else {}
         ws.cell(row, 1, row - first_row + 1)
         ws.cell(row, 2, category.asu_title)
@@ -99,23 +105,11 @@ def iros_pivot(path: Path, day: dt.date, pivot: pd.DataFrame):
     wb.save(path)
 
 
-def ssci_pivot(path: Path, day: dt.date, pivot: pd.DataFrame):
-    """Сводная по SSCI: шаблона нет, строится по образцу сводной по IROS (10 типов, 5 статусов SSCI). Допущение."""
-    wb = _template(IROS_TEMPLATE)
+def ssci_pivot(path: Path, day: dt.date, pivot: pd.DataFrame, block: Block):
+    """Сводная по SSCI: в АСУ две таблицы – за разовые мероприятия (5 типов × 4 уровня) и в рамках постоянных
+    университетских проектов (5 типов, один статус); шаблоны получены 09.11.2026."""
+    wb = _template(SSCI_TEMPLATES[block][0])
     ws = wb.active
-    for merged in ("A1:G1", "A2:G2", "D3:G3"):
-        ws.unmerge_cells(merged)
-    for merged in ("A1:H1", "A2:H2", "D3:H3"):
-        ws.merge_cells(merged)
     ws["A1"] = STAMP.format(day)
-    ws["A2"] = "Сводная таблица по SSCI (формат по образцу сводной по IROS)"
-    ws.column_dimensions["H"].width = ws.column_dimensions["G"].width
-    last = 4 + len(categories(profile=Profile.SSCI))
-    for row in range(4, last + 1):
-        source = min(row, 10)   # в шаблоне строки данных до 10-й: стиль новых строк берём с последней
-        for col in "ABCDEFGH":
-            ws[f"{col}{row}"]._style = copy(ws[f"{'G' if col == 'H' else col}{source}"]._style)
-    for col, status in enumerate(SSCI_STATUSES, start=4):
-        ws.cell(4, col, status.asu_name)
-    _fill_pivot(ws, Profile.SSCI, SSCI_STATUSES, pivot)
+    _fill_pivot(ws, Profile.SSCI, statuses(block), pivot, block=block)
     wb.save(path)
