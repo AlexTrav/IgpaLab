@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from . import evaluate
-from .baselines import B0, B1
+from .baselines import B0, B1, B2, ENet, KNN, Cohort, Comp, Huber
 from .features import GROUPS, group_features, load
 from . import hybrid
 from .models import CatBoostModel, ForestModel, MeanModel, RidgeModel, StackModel
@@ -14,7 +14,7 @@ from .report import write_report
 S0 = group_features("grades", "context")
 S1 = group_features("grades", "context", "achievements", "asu")
 MODELS = {
-    "B0": B0, "B1": B1,
+    "B0": B0, "B1": B1, "B2": B2, "Huber": Huber, "ENet": ENet, "Cohort": Cohort, "KNN": KNN, "Comp": Comp,
     "Ridge": RidgeModel, "RF": ForestModel, "CatBoost": CatBoostModel,
     "Stack": StackModel, "Mean": MeanModel,
     "CatBoost-level": lambda: CatBoostModel(target="level"),
@@ -31,6 +31,7 @@ RUNS = {
     "models": "B0,B1,Ridge,RF,CatBoost,Stack,Mean,CatBoost-level",
     "series": "B0,S0,S1,S2," + ",".join(f"S3-{g}" for g in GROUPS),
     "hybrid": "B0,Hybrid",   # CatBoost и стекинг не переобучаются: их прогнозы берутся из прогона models
+    "extra": "B0,B2,Huber,ENet,Cohort,KNN,Comp",   # простые модели по рецензии статьи
 }
 
 
@@ -56,6 +57,10 @@ def main(argv=None):
     if args.name == "export":
         from . import export
         export.run(d, Path("artifacts") / args.version, Path("results") / args.version)
+        return
+    if args.name == "review":   # метрики по рецензии статьи на сохранённых прогнозах: results/v1/review
+        from . import review
+        review.run(d, Path("results") / args.version)
         return
     if args.name == "recsys":
         from . import study

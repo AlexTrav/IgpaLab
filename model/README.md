@@ -14,7 +14,9 @@ make -C model export      # финальные модели для сайта и
 make -C model export-research   # только research.json для сайта (без обучения), после новых проверок
 make -C model check NAME=light  # проверки надёжности: light, learning, scenarios, semester, open-uci, robust (results/v1/checks)
 make -C model models ARGS=--disjoint   # контроль с непересекающимися студентами: results/v1/models_disjoint
-make -C model test        # 30 тестов: нет утечки из будущего, порядок проверок, метрики, устройство моделей
+make -C model extra       # простые модели по рецензии статьи: B2, Huber, Elastic Net, когорта, похожие студенты, компоненты: results/v1/extra
+make -C model review      # по рецензии: риск, калибровка, парные разности, подгруппы, пороги, коридор против conformal: results/v1/review
+make -C model test        # 40 тестов: нет утечки из будущего, порядок проверок, метрики, устройство моделей, метрики рецензии
 ```
 
 ## Устройство
@@ -23,7 +25,8 @@ make -C model test        # 30 тестов: нет утечки из будущ
 | --- | --- |
 | `forecast/features.py` | Панель «студент × год»: признаки года t (оценки, достижения, лаги, поведение в АСУ, контекст) и цели года t+1 |
 | `forecast/protocol.py` | Расширяющееся окно по времени, метрики, бутстреп-ДИ по студентам, Уилкоксон, Холм |
-| `forecast/baselines.py` | B0 «IGPA не изменится», B1 «только GPA» |
+| `forecast/baselines.py` | B0 «IGPA не изменится», B1 «только GPA»; простые модели B2, Huber, ENet, Cohort, KNN, Comp |
+| `forecast/review.py` | Метрики по рецензии статьи на сохранённых прогнозах; коридор гибрида против split conformal |
 | `forecast/hybrid.py` | IGPA-Hybrid: компоненты (GPA, число записей по 16 типам, уровни), розыгрыши и точный пересчёт калькулятором igpa |
 | `forecast/recommend.py` | Рекомендации «что если»: точный прирост по калькулятору, реалистичность по похожим студентам, проверка следованием |
 | `forecast/study.py` | Шаг 7: SHAP, восстановление эффектов, серия S7, рисунки 7–9, отчёт |

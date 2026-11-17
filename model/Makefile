@@ -1,4 +1,4 @@
-.PHONY: build baselines models series hybrid recsys export export-research check test clean
+.PHONY: build baselines models series hybrid extra review recsys export export-research check test clean
 
 IMAGE := igpalab-model
 VERSION ?= v1
@@ -38,6 +38,14 @@ series: build
 # своя модель IGPA-Hybrid против B0, CatBoost и стекинга (их прогнозы из прогона models) и серия S8
 hybrid: build
 	$(RUN) python -m forecast --version $(VERSION) --name hybrid
+
+# по рецензии статьи: простые модели B2, Huber, Elastic Net, когорта, похожие студенты, формульная по компонентам
+extra: build
+	$(RUN) python -m forecast --version $(VERSION) --name extra
+
+# по рецензии статьи: риск, калибровка, парные разности, подгруппы, пороги, коридор против conformal (после extra)
+review: build
+	$(RUN) python -m forecast --version $(VERSION) --name review
 
 # шаг 7: SHAP, восстановление эффектов, серия S7, проверка рекомендаций: results/v1/recsys
 recsys: build

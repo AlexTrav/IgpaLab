@@ -325,7 +325,7 @@ export default {
     normTitle: 'Stand averages',
     normNote: 'True layer: all achievements, including those not entered into the ASU. “0.1+ decline” is the share of students whose IGPA dropped by 0.1 or more within a year.',
     recTitle: 'Which advice gives more',
-    recLead: 'Expected real IGPA gain from the first advice: gain if done × share of similar students who did it. Checked against what students actually did the next year.',
+    recLead: 'Expected IGPA gain from the first advice: the gain recomputed on the student’s actual next-year portfolio × the share of similar students who did it. The evaluation is observational, not causal: it does not prove that the advice changes the outcome.',
     recConclusion: 'Our strategy is the best under all three rules. Feasibility on its own predicts well whether a student gets an achievement: ROC-AUC {auc}, on average {pred} against an actual {fact}.',
     relLead: 'Seven extra checks answering the question “were we just lucky”. Details are in the project documentation.',
     rel: {
