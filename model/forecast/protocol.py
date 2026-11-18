@@ -46,6 +46,14 @@ def best_threshold(y, score) -> float:
     return float(candidates[int(np.argmax(f1))])
 
 
+def recall_threshold(y, score, recall: float = 0.8) -> float:
+    """Наибольший порог, при котором на валидации выявляется не меньше доли recall будущих снижений."""
+    y, score = np.asarray(y, int), np.asarray(score, float)
+    if y.sum() == 0:
+        return float(np.max(score))
+    return float(np.quantile(score[y == 1], 1 - recall, method="lower"))
+
+
 def classification(y, score, threshold: float) -> dict:
     y, score = np.asarray(y, int), np.asarray(score, float)
     return {"roc_auc": roc_auc_score(y, score), "pr_auc": average_precision_score(y, score),

@@ -116,8 +116,9 @@ class HybridModel:
     """IGPA-Hybrid: компоненты + розыгрыши + калькулятор igpa по правилам постановки."""
     name = "Hybrid"
 
-    def __init__(self, samples: int = SAMPLES, rules: str | None = None):
-        self.samples, self.rules_override = samples, rules
+    def __init__(self, samples: int = SAMPLES, rules: str | None = None, rate_scale: dict | None = None):
+        # rate_scale: поправка частот записей по типам (стресс-тест: студенты подстроились под новое правило)
+        self.samples, self.rules_override, self.rate_scale = samples, rules, rate_scale or {}
 
     def fit(self, train: pd.DataFrame, features: list[str]):
         self.layer, self.rules_name = train._layer.iloc[0], train._rules.iloc[0]
@@ -142,6 +143,7 @@ class HybridModel:
         gpa = np.clip(gpa_mean[:, None] + rng.choice(c.gpa_residuals, (len(frame), self.samples)), 0, 4)
         rates = np.column_stack([np.zeros(len(frame)) if c.rates[code] is None
                                  else c.rates[code].predict(X, prediction_type="Exponent") for code in CODES])
+        rates = rates * np.array([self.rate_scale.get(code, 1.0) for code in CODES])
         counts = rng.poisson(rates[:, :, None], (len(frame), len(CODES), self.samples))
         history = c.levels(frame)
         igpa = np.empty((len(frame), self.samples))
@@ -176,3 +178,49 @@ class HybridModel:
     def risk(self, test: pd.DataFrame) -> np.ndarray:
         igpa = self._simulate(test)
         return (igpa <= test.igpa.to_numpy(float)[:, None] - 0.1).mean(axis=1)
+
+
+class ComponentPlugIn(HybridModel):
+    """B5: упрощённая компонентная модель без Монте-Карло – те же модели компонент, что у IGPA-Hybrid, но в
+    калькулятор подставляются ожидаемые значения: средний прогноз GPA, округлённое ожидаемое число записей
+    каждого типа и самый вероятный уровень записи. Риск – нормальное приближение по ошибке прогноза GPA.
+    Сравнение с IGPA-Hybrid показывает, что даёт розыгрыш нелинейного калькулятора."""
+    name = "B5"
+
+    def _point(self, test: pd.DataFrame) -> np.ndarray:
+        if getattr(self, "_last_point", None) is not None and self._last_point[0] is test:
+            return self._last_point[1]
+        c = self.c
+        frame = c.attach(test)
+        X = c._X(frame)
+        gpa = np.clip(frame.gpa.to_numpy(float) + c.gpa.predict(X), 0, 4)
+        rates = np.column_stack([np.zeros(len(frame)) if c.rates[code] is None
+                                 else c.rates[code].predict(X, prediction_type="Exponent") for code in CODES])
+        counts = np.rint(rates).astype(int)
+        history = c.levels(frame)
+        out = np.empty(len(frame))
+        for i, (sid, year) in enumerate(zip(frame.student_id, frame.year)):
+            items = []
+            for j, code in enumerate(CODES):
+                prior = c.global_levels.get(code)
+                if counts[i, j] == 0 or prior is None:
+                    continue
+                own = history.get((sid, code))
+                own = own[own.year <= year].status.value_counts() if own is not None else pd.Series(dtype=float)
+                items += [(code, (prior * PRIOR).add(own, fill_value=0).idxmax())] * int(counts[i, j])
+            key = tuple(sorted(items))
+            iros_ssci = self._cache.get(key)
+            if iros_ssci is None:
+                r = calculate([Record(cat, st) for cat, st in key], 0.0, self.rules)
+                iros_ssci = self._cache[key] = (r.iros, r.ssci)
+            out[i] = sum(igpa_parts(gpa[i], *iros_ssci, self.rules))
+        self._last_point = (test, out)
+        return out
+
+    def predict(self, test: pd.DataFrame) -> np.ndarray:
+        return self._point(test)
+
+    def risk(self, test: pd.DataFrame) -> np.ndarray:
+        from scipy.stats import norm
+        sigma = 0.5 * float(np.std(self.c.gpa_residuals)) or 1e-6
+        return norm.cdf((test.igpa.to_numpy(float) - 0.1 - self._point(test)) / sigma)

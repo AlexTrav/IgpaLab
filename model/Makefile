@@ -1,4 +1,4 @@
-.PHONY: build baselines models series hybrid extra review recsys export export-research check test clean
+.PHONY: build baselines models series hybrid extra review transfer stress advice hybrid-refresh recsys export export-research check test clean
 
 IMAGE := igpalab-model
 VERSION ?= v1
@@ -39,13 +39,29 @@ series: build
 hybrid: build
 	$(RUN) python -m forecast --version $(VERSION) --name hybrid
 
-# по рецензии статьи: простые модели B2, Huber, Elastic Net, когорта, похожие студенты, формульная по компонентам
+# базовые уровни B2–B6 по плану доработки статьи и Huber: results/v1/extra
 extra: build
 	$(RUN) python -m forecast --version $(VERSION) --name extra
+
+# после нового прогона models: S8 (смена правила) и сводка hybrid с новыми CatBoost и Stack, без переобучения гибрида
+hybrid-refresh: build
+	$(RUN) python -m forecast --version $(VERSION) --name hybrid-refresh
 
 # по рецензии статьи: риск, калибровка, парные разности, подгруппы, пороги, коридор против conformal (после extra)
 review: build
 	$(RUN) python -m forecast --version $(VERSION) --name review
+
+# перенос: обучение без факультета или только на бакалавриате, проверка на этой группе: results/v1/transfer
+transfer: build
+	$(RUN) python -m forecast --version $(VERSION) --name transfer
+
+# смена правила с изменением поведения (+30% разовых SSCI в 2025/26): results/v1/stress (после models и hybrid)
+stress: build
+	$(RUN) python -m forecast --version $(VERSION) --name stress
+
+# ретроспективная оценка советов: выполнение, покрытие, regret, типы действий: results/v1/advice
+advice: build
+	$(RUN) python -m forecast --version $(VERSION) --name advice
 
 # шаг 7: SHAP, восстановление эффектов, серия S7, проверка рекомендаций: results/v1/recsys
 recsys: build

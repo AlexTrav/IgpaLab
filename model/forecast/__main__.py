@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from . import evaluate
-from .baselines import B0, B1, B2, ENet, KNN, Cohort, Comp, Huber
+from .baselines import B0, B1, Cohort, Drift, ENet, Huber, Lin
 from .features import GROUPS, group_features, load
 from . import hybrid
 from .models import CatBoostModel, ForestModel, MeanModel, RidgeModel, StackModel
@@ -14,7 +14,8 @@ from .report import write_report
 S0 = group_features("grades", "context")
 S1 = group_features("grades", "context", "achievements", "asu")
 MODELS = {
-    "B0": B0, "B1": B1, "B2": B2, "Huber": Huber, "ENet": ENet, "Cohort": Cohort, "KNN": KNN, "Comp": Comp,
+    "B0": B0, "B1": B1, "B2": Drift, "B3": Lin, "B4": ENet, "B5": hybrid.ComponentPlugIn, "B6": Cohort,
+    "Huber": Huber,
     "Ridge": RidgeModel, "RF": ForestModel, "CatBoost": CatBoostModel,
     "Stack": StackModel, "Mean": MeanModel,
     "CatBoost-level": lambda: CatBoostModel(target="level"),
@@ -31,7 +32,7 @@ RUNS = {
     "models": "B0,B1,Ridge,RF,CatBoost,Stack,Mean,CatBoost-level",
     "series": "B0,S0,S1,S2," + ",".join(f"S3-{g}" for g in GROUPS),
     "hybrid": "B0,Hybrid",   # CatBoost и стекинг не переобучаются: их прогнозы берутся из прогона models
-    "extra": "B0,B2,Huber,ENet,Cohort,KNN,Comp",   # простые модели по рецензии статьи
+    "extra": "B0,B2,B3,B4,B5,B6,Huber",   # базовые уровни B2–B6 по плану доработки статьи и Huber
 }
 
 
@@ -39,7 +40,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="forecast", description="Модели прогноза IGPA стенда IgpaLab")
     parser.add_argument("--version", default="v1")
     parser.add_argument("--data", default="/repo/data/synthetic")
-    parser.add_argument("--name", default="baselines", help="прогон: " + ", ".join(RUNS) + ", recsys, export")
+    parser.add_argument("--name", default="baselines", help="прогон: " + ", ".join(RUNS) + ", review, transfer, stress, advice, recsys, export")
     parser.add_argument("--models", help="свой список моделей через запятую, из: " + ", ".join(MODELS))
     parser.add_argument("--disjoint", action="store_true", help="контроль: студенты проверки не входят в обучение")
     args = parser.parse_args(argv)
@@ -61,6 +62,37 @@ def main(argv=None):
     if args.name == "review":   # метрики по рецензии статьи на сохранённых прогнозах: results/v1/review
         from . import review
         review.run(d, Path("results") / args.version)
+        return
+    if args.name == "transfer":   # перенос: без факультета, бакалавриат → магистратура: results/v1/transfer
+        from . import transfer
+        transfer.run(d, Path("results") / args.version / "transfer")
+        return
+    if args.name == "hybrid-refresh":   # после нового прогона models: S8 и сводка hybrid с новыми CatBoost и Stack
+        out = Path("results") / args.version / "hybrid"
+        old = pd.read_parquet(out / "predictions.parquet")
+        done = pd.read_parquet(out.parent / "models" / "predictions.parquet")
+        preds = pd.concat([old[~old.model.isin(["CatBoost", "Stack"])],
+                           done[done.model.isin(["CatBoost", "Stack"])]], ignore_index=True)
+        assert not preds.duplicated(["rules", "layer", "model", "student_id"]).any()
+        s8 = evaluate.rule_change(preds)
+        summary = evaluate.summary(preds)
+        versus = evaluate.summary(preds, reference="CatBoost")
+        folds = pd.read_csv(out / "folds.csv")
+        preds.to_parquet(out / "predictions.parquet", index=False)
+        s8.to_csv(out / "rule_change.csv", index=False)
+        summary.to_csv(out / "summary.csv", index=False)
+        versus.to_csv(out / "summary_vs_catboost.csv", index=False)
+        args.name = "hybrid"
+        (out / "report.md").write_text(write_report(folds, summary, args, versus, "CatBoost", s8), encoding="utf-8")
+        print(s8.round(4).to_string(index=False))
+        return
+    if args.name == "stress":   # смена правила + изменение поведения (+30% разовых SSCI): results/v1/stress
+        from . import stress
+        stress.run(d, Path("results") / args.version)
+        return
+    if args.name == "advice":   # ретроспективная оценка советов: results/v1/advice
+        from . import advice
+        advice.run(d, Path("results") / args.version / "advice")
         return
     if args.name == "recsys":
         from . import study

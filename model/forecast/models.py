@@ -190,19 +190,28 @@ BASES = (RidgeModel, ForestModel, CatBoostModel)
 
 
 class StackModel(_Base):
-    """Стекинг: базовые модели учатся без последнего года обучающей части, на нём подбираются неотрицательные
-    веса (NNLS, сумма 1) для изменения IGPA и логистическая мета-модель для риска; затем базы переобучаются целиком."""
+    """Стекинг на прогнозах «вне времени»: для каждого года y обучающей части, кроме первого, базовые модели учатся
+    (и подбирают параметры) только на годах до y и прогнозируют год y; по всем таким прогнозам подбираются
+    неотрицательные веса (NNLS, сумма 1) для изменения IGPA и логистическая мета-модель для риска; затем базы
+    переобучаются на всей обучающей части. Проверочный год в этом не участвует. Если обучающий год один
+    (первая проверка), прогнозов вне времени нет – веса равные, мета-модель учится на самом этом году."""
     name = "Stack"
 
     def fit(self, train, features):
         self.features = self._features(features)
-        fit_part, val = inner_split(train)
-        probes = [cls(self.target, self.use).fit(fit_part, features) for cls in BASES]
-        P = np.column_stack([m.predict(val) - val.igpa.to_numpy(float) for m in probes])
-        w, _ = nnls(P, val.delta.to_numpy(float))
+        years = sorted(train.year.unique())
+        blocks = [(train[train.year < y], train[train.year == y]) for y in years[1:]] or [(train, train)]
+        deltas, scores, targets, risks = [], [], [], []
+        for past, block in blocks:
+            probes = [cls(self.target, self.use).fit(past, features) for cls in BASES]
+            deltas.append(np.column_stack([m.predict(block) - block.igpa.to_numpy(float) for m in probes]))
+            scores.append(np.column_stack([_logit(m.risk(block)) for m in probes]))
+            targets.append(block.delta.to_numpy(float))
+            risks.append(block.risk.astype(int).to_numpy())
+        P, S = np.vstack(deltas), np.vstack(scores)
+        w, _ = nnls(P, np.concatenate(targets)) if len(years) > 1 else (np.ones(len(BASES)), None)
         self.weights = w / w.sum() if w.sum() > 0 else np.full(len(BASES), 1 / len(BASES))
-        S = np.column_stack([_logit(m.risk(val)) for m in probes])
-        self.meta = LogisticRegression(max_iter=5000).fit(S, val.risk.astype(int))
+        self.meta = LogisticRegression(max_iter=5000).fit(S, np.concatenate(risks))
         self.models = [cls(self.target, self.use).fit(train, features) for cls in BASES]
         return self
 

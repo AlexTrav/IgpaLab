@@ -43,6 +43,19 @@ def test_no_leakage_from_future(d, cut):
         assert trunc[trunc.year == cut].igpa_next.isna().all()
 
 
+@pytest.mark.parametrize("cut", [2022, 2023])
+def test_no_leakage_from_late_asu_entries(d, cut):
+    """Признаки года t видят АСУ на конец года t: записи, внесённые позже (даже о событиях года t), их не меняют."""
+    end = pd.Timestamp(f"{cut + 1}-06-30")
+    early = {**d, "records_asu": d["records_asu"][d["records_asu"].entered_at <= end]}
+    full, features = build(d, "default", "obs")
+    trunc, _ = build(early, "default", "obs")
+    a = full[full.year == cut].set_index("student_id")[features]
+    b = trunc[trunc.year == cut].set_index("student_id")[features].loc[a.index]
+    num = [f for f in features if f not in CATEGORICAL]
+    assert np.allclose(a[num].to_numpy(float), b[num].to_numpy(float), equal_nan=True)
+
+
 def test_next_year_target(built, d):
     (panel, _), (rules, layer) = built
     t = transitions(panel).sample(300, random_state=0)

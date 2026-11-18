@@ -1,17 +1,15 @@
 """Базовые уровни: B0 «IGPA не изменится» и B1 «только GPA».
 
-Дополнительные простые модели (по рецензии, 17.11.2026): B2 – линейная по последнему IGPA, его тренду и курсу;
-Huber и Elastic Net на всех признаках; Cohort – среднее изменение по уровню и курсу; KNN – среднее изменение
-у 50 похожих студентов; Comp – простая формульная модель компонентов: меняется только GPA (линейная модель),
-достижения сохраняются, IGPA пересчитывается с весом 0,5. Регрессии учат изменение IGPA, как и основные модели.
+Дополнительные базовые уровни по плану доработки статьи (нумерация научного руководителя, 19.11.2026):
+B2 – последний IGPA плюс среднее историческое изменение; B3 – линейная модель по IGPA, GPA, курсу и годовым
+изменениям; B4 – Elastic Net на всех признаках (и рядом Huber); B5 – компонентная модель без Монте-Карло
+(в hybrid.py); B6 – среднее изменение у студентов того же уровня и курса. Регрессии учат изменение IGPA.
 """
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
 from sklearn.linear_model import ElasticNet, HuberRegressor, LinearRegression, LogisticRegression
 from sklearn.metrics import mean_absolute_error
-from sklearn.neighbors import NearestNeighbors
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -55,10 +53,25 @@ def _fill(frame: pd.DataFrame, cols: list[str]) -> np.ndarray:
     return frame[cols].astype(float).fillna(0.0).to_numpy()
 
 
-class B2:
-    """Линейная модель по последнему IGPA, его тренду и курсу (+ магистратура): изменение IGPA и риск."""
+class Drift:
+    """B2: последний IGPA плюс среднее историческое изменение IGPA; риск – историческая доля снижений."""
     name = "B2"
-    COLS = ["igpa", "igpa_trend", "year_of_study", "master"]
+
+    def fit(self, train, features):
+        self.delta, self.share = float(train.delta.mean()), float(train.risk.mean())
+        return self
+
+    def predict(self, test):
+        return test.igpa.to_numpy(float) + self.delta
+
+    def risk(self, test):
+        return np.full(len(test), self.share)
+
+
+class Lin:
+    """B3: линейная модель по IGPA, GPA, курсу и годовым изменениям GPA и IGPA: изменение IGPA и риск."""
+    name = "B3"
+    COLS = ["igpa", "gpa", "igpa_trend", "gpa_trend", "year_of_study", "master"]
 
     def fit(self, train, features):
         X = _fill(train, self.COLS)
@@ -101,7 +114,7 @@ class _Linear:
 
 
 class Huber(_Linear):
-    """Регрессия Хьюбера: устойчива к выбросам изменения IGPA."""
+    """Регрессия Хьюбера: устойчива к выбросам изменения IGPA (дополнение к B4)."""
     name = "Huber"
     GRID = (1.1, 1.35, 1.75, 2.5)
 
@@ -110,8 +123,8 @@ class Huber(_Linear):
 
 
 class ENet(_Linear):
-    """Elastic Net (l1_ratio = 0,5)."""
-    name = "ENet"
+    """B4: Elastic Net (l1_ratio = 0,5) на всех признаках."""
+    name = "B4"
     GRID = (1e-4, 1e-3, 3e-3, 1e-2, 3e-2)
 
     def _make(self, p):
@@ -119,8 +132,8 @@ class ENet(_Linear):
 
 
 class Cohort:
-    """Когортный дрейф: среднее изменение IGPA и доля снижений по уровню и курсу в обучающих данных."""
-    name = "Cohort"
+    """B6: среднее изменение IGPA и доля снижений у студентов того же уровня и курса в обучающих данных."""
+    name = "B6"
     KEY = ["level", "year_of_study"]
 
     def fit(self, train, features):
@@ -138,48 +151,3 @@ class Cohort:
 
     def risk(self, test):
         return self._lookup(test, self.share, self.share0)
-
-
-class KNN:
-    """Похожие студенты: среднее изменение IGPA и доля снижений у 50 ближайших по IGPA, GPA, трендам и курсу."""
-    name = "KNN"
-    COLS = ["igpa", "gpa", "gpa_trend", "igpa_trend", "year_of_study", "master"]
-    K = 50
-
-    def fit(self, train, features):
-        self.scaler = StandardScaler().fit(_fill(train, self.COLS))
-        self.nn = NearestNeighbors(n_neighbors=self.K).fit(self.scaler.transform(_fill(train, self.COLS)))
-        self.delta, self.dec = train.delta.to_numpy(float), train.risk.to_numpy(float)
-        return self
-
-    def _idx(self, test):
-        return self.nn.kneighbors(self.scaler.transform(_fill(test, self.COLS)), return_distance=False)
-
-    def predict(self, test):
-        return test.igpa.to_numpy(float) + self.delta[self._idx(test)].mean(axis=1)
-
-    def risk(self, test):
-        return self.dec[self._idx(test)].mean(axis=1)
-
-
-class Comp:
-    """Простая формульная модель компонентов: прогноз изменения GPA линейной моделью по оценкам, iROS и SSCI
-    без изменений, IGPA = текущий IGPA + 0,5 · ΔGPA; риск – из нормального приближения остатков."""
-    name = "Comp"
-    COLS = ["gpa", "gpa_trend", "gpa_cum", "sem_trend", "fx_count", "min_score", "failed_credits", "year_of_study"]
-
-    def fit(self, train, features):
-        X = _fill(train, self.COLS)
-        dg = (train.gpa_next - train.gpa).to_numpy(float)
-        self.reg = LinearRegression().fit(X, dg)
-        self.sigma = float(np.std(train.delta.to_numpy(float) - 0.5 * self.reg.predict(X)))
-        return self
-
-    def _delta(self, test):
-        return 0.5 * self.reg.predict(_fill(test, self.COLS))
-
-    def predict(self, test):
-        return test.igpa.to_numpy(float) + self._delta(test)
-
-    def risk(self, test):
-        return norm.cdf((-0.1 - self._delta(test)) / self.sigma)

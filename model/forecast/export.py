@@ -191,6 +191,13 @@ def _export_research(results: Path, out: Path):
     shap = pd.read_csv(rec / "shap_global.csv")
     bundle["shap"] = shap[shap.layer == "obs"].to_dict("records")
     bundle["light_eval"] = pd.read_csv(out / "light_eval.csv").to_dict("records")
+    # доработка статьи по плану руководителя (19.11.2026): базовые уровни B2–B6, риск, перенос, стресс-тест, советы
+    optional = {"extra": results / "extra" / "summary.csv", "review_risk": results / "review" / "risk.csv",
+                "review_intervals": results / "review" / "intervals.csv", "transfer": results / "transfer" / "transfer.csv",
+                "stress": results / "stress" / "stress.csv", "advice": results / "advice" / "strategies.csv"}
+    for name, path in optional.items():
+        if path.exists():
+            bundle[name] = pd.read_csv(path).to_dict("records")
     bundle.update(_checks(results))
     (out / "research.json").write_text(json.dumps(bundle, ensure_ascii=False, default=float), encoding="utf-8")
 

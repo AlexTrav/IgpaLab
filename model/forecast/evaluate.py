@@ -26,11 +26,13 @@ def run(d: dict, models: dict[str, Factory], disjoint: bool = False,
         for year, train, test in P.folds(data, disjoint=disjoint):
             fit_part, val = P.inner_split(train)
             for name, factory in models.items():
-                threshold = None
+                threshold = threshold80 = None
                 probe = factory().fit(fit_part, features)
                 val_score = probe.risk(val)
                 if val_score is not None:
                     threshold = P.best_threshold(val.risk.astype(int), val_score)
+                    # практический порог: выявить не меньше 80% снижений (по рецензии вместо автоматического F1)
+                    threshold80 = P.recall_threshold(val.risk.astype(int), val_score, 0.8)
                 model = factory().fit(train, features)
                 pred, score = model.predict(test), model.risk(test)
                 print(f"{time.strftime('%H:%M:%S')} {rules}/{layer} проверка {year}: {name} готов", flush=True)
@@ -46,7 +48,8 @@ def run(d: dict, models: dict[str, Factory], disjoint: bool = False,
                         "year": year, "y": test.igpa_next.to_numpy(), "igpa": test.igpa.to_numpy(),
                         "risk": test.risk.to_numpy(), "active": test.active.to_numpy(), "pred": pred,
                         "score": np.full(len(test), np.nan) if score is None else score,
-                        "threshold": np.nan if threshold is None else threshold}))
+                        "threshold": np.nan if threshold is None else threshold,
+                        "threshold80": np.nan if threshold80 is None else threshold80}))
     return pd.DataFrame(rows), pd.concat(preds, ignore_index=True)
 
 

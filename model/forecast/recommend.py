@@ -114,14 +114,43 @@ def recommend(frame: pd.DataFrame, portfolio: Portfolio, feasibility: Feasibilit
     return pd.DataFrame(rows)
 
 
+MIN_FEASIBILITY = 0.1   # совет «покрыт»: прирост по формуле > 0 и оценённая вероятность наблюдения действия ≥ 10%
+
+
+def action_kind(action) -> str:
+    """Тип действия для разбивки: рост GPA, научная запись (iROS) или общественная (SSCI)."""
+    kind, code, _ = action
+    if kind == "gpa":
+        return "GPA"
+    return "iROS" if CATEGORY_BY_CODE[code].block is Block.RESEARCH else "SSCI"
+
+
+def observed(frame: pd.DataFrame, portfolio: Portfolio) -> np.ndarray:
+    """Студенты × действия: сделал ли студент действие в году t+1 (та же логика, что в Feasibility)."""
+    acts = actions()
+    y = np.zeros((len(frame), len(acts)), dtype=bool)
+    for i, row in enumerate(frame.itertuples()):
+        best = {}
+        for cat, st in portfolio.by_key.get((row.student_id, row.year + 1), []):
+            best[cat] = max(best.get(cat, -1), LEVEL.get(st, 0))
+        for j, (kind, code, value) in enumerate(acts):
+            y[i, j] = ((row.gpa_next - row.gpa) >= value) if kind == "gpa" else (code in best and best[code] >= LEVEL[value])
+    return y
+
+
 def follow(frame: pd.DataFrame, portfolio: Portfolio, feasibility: Feasibility, seed: int = 0) -> pd.DataFrame:
-    """Проверка на стенде: студент следует одной рекомендации; реальный прирост IGPA на фактическом портфеле года t+1.
+    """Ретроспективная проверка на стенде, слой истины: арифметический прирост совета, пересчитанный на фактическом
+    портфеле года t+1 (realized), и он же, умноженный на оценённую вероятность наблюдения действия.
 
     Стратегии: наша (максимум ожидаемого прироста), только по приросту формулы, самое частое достижение
-    (участие в научном мероприятии уровня ОВПО), случайное действие.
+    (участие в научном мероприятии уровня ОВПО), случайное действие. Дополнительно: сделал ли студент
+    рекомендованное действие на самом деле (did), покрыт ли совет (прирост > 0 и вероятность ≥ 10%) и regret –
+    насколько метрика совета (realized × вероятность) ниже, чем у лучшего доступного действия, выбранного задним
+    числом в слое истины по той же метрике (oracle); regret ≥ 0, ноль – совет совпал с лучшим действием.
     """
     acts = actions()
     feas, _ = feasibility(frame)
+    done = observed(frame, portfolio)
     common = acts.index(("record", "IROS_EVENT", "IROS_OVPO"))
     rng = np.random.default_rng(seed)
     rows = []
@@ -130,14 +159,19 @@ def follow(frame: pd.DataFrame, portfolio: Portfolio, feasibility: Feasibility, 
         nxt = portfolio.by_key.get((row.student_id, row.year + 1), [])
         claimed = np.array([portfolio.gain(row.gpa, now, a) for a in acts])
         realized = np.array([portfolio.gain(row.gpa_next, nxt, a) for a in acts])
+        oracle = float((realized * feas[i]).max())
+        coverable = bool(((claimed > 1e-9) & (feas[i] >= MIN_FEASIBILITY)).any())
         picks = {"Наша: прирост × реалистичность": int(np.argmax(claimed * feas[i])),
                  "Только прирост по формуле": int(np.argmax(claimed)),
                  "Самое частое достижение": common,
                  "Случайное действие": int(rng.integers(len(acts)))}
         for strategy, j in picks.items():
             rows.append({"student_id": row.student_id, "strategy": strategy, "action": j,
-                         "claimed": claimed[j], "realized": realized[j], "feasibility": feas[i, j],
-                         "expected_realized": realized[j] * feas[i, j]})
+                         "kind": action_kind(acts[j]), "claimed": claimed[j], "realized": realized[j],
+                         "feasibility": feas[i, j], "expected_realized": realized[j] * feas[i, j],
+                         "did": bool(done[i, j]), "covered": bool(claimed[j] > 1e-9 and feas[i, j] >= MIN_FEASIBILITY),
+                         "coverable": coverable, "oracle": oracle,
+                         "regret": oracle - realized[j] * feas[i, j]})
     return pd.DataFrame(rows)
 
 
@@ -146,13 +180,7 @@ def feasibility_quality(frame: pd.DataFrame, portfolio: Portfolio, feasibility: 
     from sklearn.metrics import roc_auc_score
     acts = actions()
     feas, _ = feasibility(frame)
-    y = np.zeros_like(feas, dtype=bool)
-    for i, row in enumerate(frame.itertuples()):
-        best = {}
-        for cat, st in portfolio.by_key.get((row.student_id, row.year + 1), []):
-            best[cat] = max(best.get(cat, -1), LEVEL.get(st, 0))
-        for j, (kind, code, value) in enumerate(acts):
-            y[i, j] = ((row.gpa_next - row.gpa) >= value) if kind == "gpa" else (code in best and best[code] >= LEVEL[value])
+    y = observed(frame, portfolio)
     records = [j for j, a in enumerate(acts) if a[0] == "record"]
     return {"auc_records": roc_auc_score(y[:, records].ravel(), feas[:, records].ravel()),
             "mean_feasibility": float(feas[:, records].mean()), "observed_rate": float(y[:, records].mean())}
